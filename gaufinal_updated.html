@@ -1,0 +1,2589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GAU SAARTHI – AI Dairy Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green-dark:   #1a5c2a;
+      --green-mid:    #2d8a42;
+      --green-light:  #4caf50;
+      --green-pale:   #d4edda;
+      --green-bg:     #f0faf2;
+      --yellow-alert: #fff3cd;
+      --yellow-text:  #856404;
+      --red-alert:    #f8d7da;
+      --red-text:     #721c24;
+      --text-main:    #1a2b1e;
+      --text-sub:     #4a5e4f;
+      --white:        #ffffff;
+      --card-shadow:  0 4px 20px rgba(26,92,42,0.10);
+      --radius:       14px;
+      --radius-sm:    8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif;
+      background: var(--green-bg);
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+      color: var(--white);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+    .logo-text h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      line-height: 1.1;
+    }
+    .logo-text p {
+      font-size: 0.72rem;
+      opacity: 0.85;
+      letter-spacing: 0.5px;
+    }
+    nav {
+      display: flex;
+      gap: 6px;
+    }
+    nav button {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: var(--white);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    nav button:hover, nav button.active {
+      background: rgba(255,255,255,0.28);
+    }
+    .lang-select {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: var(--white);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .lang-select option { color: #000; background: #fff; }
+
+    /* ── MAIN LAYOUT ── */
+    .app-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .tab-btn {
+      background: var(--white);
+      border: 2px solid var(--green-pale);
+      color: var(--text-sub);
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab-btn:hover { border-color: var(--green-light); color: var(--green-dark); }
+    .tab-btn.active {
+      background: var(--green-dark);
+      border-color: var(--green-dark);
+      color: var(--white);
+      box-shadow: 0 3px 10px rgba(26,92,42,0.25);
+    }
+
+    /* ── PANELS ── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── GRID ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    @media(max-width:768px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      nav { display: none; }
+    }
+
+    /* ── FORM ELEMENTS ── */
+    label { font-size: 0.83rem; font-weight: 600; color: var(--text-sub); display: block; margin-bottom: 5px; }
+    input[type=text], input[type=number], input[type=date], select, textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #d0e8d4;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: #fafffe;
+      color: var(--text-main);
+      transition: border 0.2s;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--green-light); }
+    textarea { height: 110px; resize: vertical; }
+    .form-group { margin-bottom: 14px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media(max-width:600px) { .form-row { grid-template-columns: 1fr; } }
+
+    /* ── BUTTONS ── */
+
+    .btn-signup {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  color: var(--green-dark);
+  border: 2px solid var(--green-mid);
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.btn-signup:hover {
+  background: var(--green-pale);
+}
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 11px 22px;
+      border-radius: 30px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--green-dark);
+      color: var(--white);
+      box-shadow: 0 3px 10px rgba(26,92,42,0.25);
+    }
+    .btn-primary:hover { background: var(--green-mid); transform: translateY(-1px); }
+    .btn-secondary {
+      background: var(--green-pale);
+      color: var(--green-dark);
+      border: 1.5px solid var(--green-light);
+    }
+    .btn-secondary:hover { background: #c1e8c8; }
+    .btn-danger { background: #dc3545; color: var(--white); }
+    .btn-voice {
+      background: linear-gradient(135deg, #e91e63, #c2185b);
+      color: var(--white);
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      font-size: 1.3rem;
+      justify-content: center;
+      padding: 0;
+      box-shadow: 0 4px 14px rgba(233,30,99,0.35);
+    }
+    .btn-voice.recording {
+      animation: pulse-red 1s infinite;
+      background: linear-gradient(135deg, #f44336, #c62828);
+    }
+    @keyframes pulse-red {
+      0%,100% { box-shadow: 0 4px 14px rgba(233,30,99,0.35); }
+      50% { box-shadow: 0 4px 28px rgba(233,30,99,0.75); transform: scale(1.08); }
+    }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+    /* ── AI RESPONSE ── */
+    .ai-response {
+      background: linear-gradient(135deg, #f0faf2, #e8f5e9);
+      border: 1.5px solid var(--green-light);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-top: 16px;
+      display: none;
+    }
+    .ai-response.visible { display: block; }
+    .ai-response-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: var(--green-dark);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .ai-response-body {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text-main);
+      white-space: pre-wrap;
+    }
+    .ai-response-body strong { color: var(--green-dark); }
+    .typing-indicator {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      padding: 8px 0;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      background: var(--green-mid);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite ease-in-out;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%,80%,100% { transform: scale(0.7); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── ALERT BOXES ── */
+    .alert {
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.87rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .alert-warning { background: var(--yellow-alert); color: var(--yellow-text); border: 1px solid #ffc107; }
+    .alert-danger  { background: var(--red-alert);    color: var(--red-text);    border: 1px solid #f5c6cb; }
+    .alert-success { background: var(--green-pale);   color: var(--green-dark);  border: 1px solid var(--green-light); }
+    .alert-info    { background: #d1ecf1;             color: #0c5460;            border: 1px solid #bee5eb; }
+
+    /* ── STAT CARDS ── */
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .stat-icon {
+      width: 50px; height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .stat-icon.green  { background: #d4edda; }
+    .stat-icon.yellow { background: #fff3cd; }
+    .stat-icon.red    { background: #f8d7da; }
+    .stat-icon.blue   { background: #d1ecf1; }
+    .stat-value { font-size: 1.6rem; font-weight: 800; color: var(--green-dark); line-height: 1; }
+    .stat-label { font-size: 0.78rem; color: var(--text-sub); margin-top: 2px; }
+
+    /* ── PROGRESS / CYCLE ── */
+    .cycle-bar {
+      height: 14px;
+      background: #e8f5e9;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .cycle-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.6s ease;
+    }
+    .cycle-fill.green  { background: linear-gradient(90deg, #4caf50, #2d8a42); }
+    .cycle-fill.yellow { background: linear-gradient(90deg, #ffc107, #ff9800); }
+    .cycle-fill.red    { background: linear-gradient(90deg, #f44336, #c62828); }
+
+    /* ── ANIMAL LIST ── */
+    .animal-card {
+      background: var(--white);
+      border: 1.5px solid var(--green-pale);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .animal-card:hover { border-color: var(--green-light); box-shadow: var(--card-shadow); }
+    .animal-card.selected { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(77,175,74,0.2); }
+    .animal-header { display: flex; align-items: center; justify-content: space-between; }
+    .animal-name { font-weight: 700; font-size: 1rem; color: var(--green-dark); }
+    .animal-badge {
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.73rem;
+      font-weight: 600;
+    }
+    .badge-ok     { background: var(--green-pale);   color: var(--green-dark); }
+    .badge-watch  { background: var(--yellow-alert); color: var(--yellow-text); }
+    .badge-alert  { background: var(--red-alert);    color: var(--red-text); }
+    .animal-meta  { font-size: 0.8rem; color: var(--text-sub); margin-top: 5px; }
+
+    /* ── IMAGE UPLOAD ── */
+    .upload-zone {
+      border: 2.5px dashed var(--green-light);
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fafffa;
+      position: relative;
+    }
+    .upload-zone:hover { background: var(--green-pale); border-color: var(--green-dark); }
+    .upload-zone input[type=file] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon { font-size: 2.5rem; margin-bottom: 8px; }
+    .upload-text { color: var(--text-sub); font-size: 0.88rem; }
+    #imagePreview {
+      max-width: 100%; max-height: 220px;
+      border-radius: var(--radius-sm);
+      margin-top: 12px;
+      display: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* ── HERO SECTION ── */
+    .hero {
+      background: linear-gradient(135deg, var(--green-dark) 0%, #1e7e34 60%, #28a745 100%);
+      border-radius: 20px;
+      padding: 40px 36px;
+      color: var(--white);
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '🐄';
+      position: absolute;
+      right: 30px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 7rem;
+      opacity: 0.12;
+    }
+    .hero h2 { font-size: 1.9rem; font-weight: 800; margin-bottom: 8px; }
+    .hero p  { font-size: 0.95rem; opacity: 0.88; max-width: 500px; line-height: 1.6; }
+    .hero-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    .hero-chip {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    /* ── JOURNAL / LOG ── */
+    .log-entry {
+      border-left: 3px solid var(--green-light);
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      background: #fafffe;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.85rem;
+    }
+    .log-date { font-size: 0.75rem; color: var(--text-sub); margin-bottom: 3px; }
+
+    /* ── SECTION HEADINGS ── */
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--green-pale);
+    }
+
+    /* ── FEATURES GRID (Home) ── */
+    .feature-chip {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 2px solid transparent;
+    }
+    .feature-chip:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(26,92,42,0.15);
+      border-color: var(--green-light);
+    }
+    .feature-chip-icon { font-size: 2rem; margin-bottom: 8px; }
+    .feature-chip-label { font-size: 0.82rem; font-weight: 600; color: var(--green-dark); }
+
+    /* ── RISK INDICATOR ── */
+    .risk-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .risk-label { font-size: 0.85rem; color: var(--text-main); font-weight: 500; }
+    .risk-pill {
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #b2d8b7; border-radius: 4px; }
+
+    /* ── SPEAK/READ button ── */
+    .speak-btn {
+      background: transparent;
+      border: 1px solid var(--green-light);
+      color: var(--green-dark);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 8px;
+    }
+    .speak-btn:hover { background: var(--green-pale); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      border-top: 1px solid var(--green-pale);
+      margin-top: 20px;
+    }
+
+    /* ── LOADING SPINNER ── */
+    .spinner {
+      width: 22px; height: 22px;
+      border: 3px solid var(--green-pale);
+      border-top-color: var(--green-mid);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--green-dark);
+      color: var(--white);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── SCREENS (Login / App) ── */
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    #loginScreen {
+      background: linear-gradient(155deg, var(--green-dark) 0%, var(--green-mid) 55%, #a8d8b2 100%);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 40px 36px 36px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      text-align: center;
+    }
+    .login-logo { font-size: 52px; margin-bottom: 4px; }
+    .login-title { font-size: 28px; font-weight: 800; color: var(--green-dark); letter-spacing: 1px; }
+    .login-tagline { font-size: 13px; color: var(--text-sub); margin-bottom: 28px; margin-top: 4px; }
+    .lang-tabs {
+      display: flex;
+      border: 2px solid var(--green-mid);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .lang-tab {
+      flex: 1; padding: 9px 4px; font-size: 13px; font-weight: 600; cursor: pointer;
+      background: none; border: none; color: var(--green-dark);
+      transition: background .2s, color .2s; font-family: inherit;
+    }
+    .lang-tab.active { background: var(--green-mid); color: var(--white); }
+    .login-form-group { text-align: left; margin-bottom: 16px; }
+    .login-form-group label {
+      display: block; font-size: 13px; font-weight: 600; color: var(--text-sub); margin-bottom: 6px;
+    }
+    .login-form-group input {
+      width: 100%; padding: 12px 14px; border: 1.5px solid #d0e8d4; border-radius: 10px;
+      font-size: 15px; font-family: inherit; outline: none; transition: border-color .2s;
+    }
+    .login-form-group input:focus { border-color: var(--green-mid); }
+    .btn-login-primary {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+      color: var(--white); border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+      cursor: pointer; margin-top: 8px; transition: opacity .2s, transform .1s; font-family: inherit;
+    }
+    .btn-login-primary:hover { opacity: .92; }
+    .btn-login-primary:active { transform: scale(.98); }
+    .login-footer { margin-top: 18px; font-size: 12px; color: var(--text-sub); }
+    .login-error {
+      color: #d94f3d; font-size: 13px; margin-top: 8px; margin-bottom: 8px; display: none;
+    }
+    .btn-logout {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.25);
+      color: var(--white);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,.28); }
+  </style>
+</head>
+
+<body>
+
+<!-- ══════════════════════════
+     LOGIN SCREEN
+══════════════════════════ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">🐄</div>
+    <div class="login-title">GAU SAARTHI</div>
+    <div class="login-tagline" id="loginTagline">AI Dairy Assistant</div>
+
+    <div class="lang-tabs" id="loginLangTabs">
+      <button class="lang-tab active" onclick="setLang('en', this)">English</button>
+      <button class="lang-tab" onclick="setLang('hi', this)">हिन्दी</button>
+      <button class="lang-tab" onclick="setLang('pa', this)">ਪੰਜਾਬੀ</button>
+    </div>
+
+    <div class="login-form-group">
+      <label id="lblMobile">Mobile Number</label>
+      <input type="tel" id="loginMobile" maxlength="10" placeholder="Mobile Number/मोबाइल नंबर/ਮੋਬਾਈਲ ਨੰਬਰ">
+    </div>
+
+    <div class="login-form-group">
+      <label id="lblPassword">Password</label>
+      <input type="password" id="loginPassword" placeholder="Password/पासवर्ड/ਪਾਸਵਰਡ">
+    </div>
+
+    <div class="login-error" id="loginError"></div>
+
+    <button class="btn-login-primary" id="loginBtn" onclick="doLogin()">Login</button>
+    <button class="btn-signup" onclick="showSignup()">Sign Up</button>
+
+    <div class="login-footer" id="loginFooter">Demo: any number + any password</div>
+  </div>
+</div>
+
+<div id="signupForm" style="display:none; margin-top:20px;">
+    <div id="signupForm" style="display:none;"></div>
+
+  <div class="login-form-group">
+    <label>Full Name</label>
+    <input type="text" id="signupName" placeholder="Enter your name">
+  </div>
+
+  <div class="login-form-group">
+    <label>Mobile Number</label>
+    <input type="tel" id="signupMobile" placeholder="9876543210">
+  </div>
+
+  <div class="login-form-group">
+    <label>Password</label>
+    <input type="password" id="signupPassword" placeholder="Create password">
+  </div>
+
+  <button class="btn-login-primary" onclick="registerUser()">Create Account</button>
+</div>
+
+<!-- ══════════════════════════
+     MAIN APP SCREEN
+══════════════════════════ -->
+<div id="appScreen" class="screen">
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🐄</div>
+      <div class="logo-text">
+        <h1 id="h-title">GAU SAARTHI</h1>
+        <p id="h-sub">Voice-Based AI Dairy Assistant</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <nav>
+        <button onclick="switchTab('home')"    id="nav-home"    class="active" data-i18n="nav-home">🏠 Home</button>
+        <button onclick="switchTab('health')"  id="nav-health" data-i18n="nav-health">🩺 Health</button>
+        <button onclick="switchTab('breed')"   id="nav-breed" data-i18n="nav-breed">🌱 Breeding</button>
+        <button onclick="switchTab('feed')"    id="nav-feed" data-i18n="nav-feed">🌾 Feed</button>
+        <button onclick="switchTab('herd')"    id="nav-herd" data-i18n="nav-herd">📋 My Herd</button>
+      </nav>
+      <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
+        <option value="en">🇮🇳 English</option>
+        <option value="hi">हिंदी</option>
+        <option value="pa">ਪੰਜਾਬੀ</option>
+      </select>
+      <button class="btn-logout" id="logoutBtn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+</header>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MAIN -->
+<div class="app-container">
+
+  <!-- ═══════════ HOME TAB ═══════════ -->
+  <div class="panel active" id="panel-home">
+
+    <div class="hero">
+      <h2 id="hero-title">🐄 Welcome to GAU SAARTHI</h2>
+      <p id="hero-desc">Your AI-powered dairy companion. Speak naturally, share a photo, and get expert guidance on animal health, breeding, and feeding – right now, in your language.</p>
+      <div class="hero-chips">
+        <span class="hero-chip">🎤 Voice-First</span>
+        <span class="hero-chip">📷 Image Analysis</span>
+        <span class="hero-chip">🌐 Hindi / Punjabi / English</span>
+        <span class="hero-chip">📴 Works Offline</span>
+        <span class="hero-chip">💊 No Wearables Needed</span>
+      </div>
+    </div>
+
+    <!-- QUICK ADVISORY CARD -->
+    <div class="card">
+      <div class="card-title">🎤 <span id="qa-title">Quick AI Advisory</span></div>
+
+      <div class="form-group">
+        <label id="qa-label">Describe your animal's problem in your own words</label>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <textarea id="problemText" placeholder="e.g. My cow is eating less and milk production has dropped..."></textarea>
+          <button class="btn btn-voice" id="voiceBtn" onclick="toggleVoice()" title="Record Voice">🎤</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label id="qa-animal">Animal Type</label>
+          <select id="animalType">
+            <option value="cow">🐄 Cow</option>
+            <option value="buffalo">🐃 Buffalo</option>
+            <option value="calf">🐮 Calf</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="qa-concern">Main Concern</label>
+          <select id="concernType">
+            <option value="general">General Health</option>
+            <option value="milk">Milk Production Drop</option>
+            <option value="mastitis">Udder / Mastitis</option>
+            <option value="heat">Heat / Breeding</option>
+            <option value="feeding">Feeding / Nutrition</option>
+            <option value="injury">Injury / Lameness</option>
+            <option value="respiratory">Respiratory / Fever</option>
+            <option value="digestion">Digestion / Bloating</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>📷 Upload Animal Photo (Optional – for visual analysis)</label>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)" />
+          <div class="upload-icon">📸</div>
+          <div class="upload-text">Tap to take or upload a photo of your animal<br><small>Helps AI assess body condition, udder health, and more</small></div>
+        </div>
+        <img id="imagePreview" alt="Animal photo preview" />
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="getAIAdvice()">
+          🤖 <span id="qa-btn">Get AI Advisory</span>
+        </button>
+        <button class="btn btn-secondary" onclick="clearAdvice()" data-i18n="btn-clear">🗑️ Clear</button>
+      </div>
+
+      <div class="ai-response" id="aiResponse">
+        <div class="ai-response-header">🌿 <span id="ai-resp-title">AI Advisory</span> – GAU SAARTHI</div>
+        <div class="ai-response-body" id="aiResponseBody"></div>
+        <button class="speak-btn" onclick="speakResponse()" data-i18n="btn-listen">🔊 Listen to Advisory</button>
+      </div>
+    </div>
+
+    <!-- FEATURE GRID -->
+    <div class="section-title">🌟 <span id="fg-title">Core Features</span></div>
+    <div class="grid-3" style="margin-bottom:24px">
+      <div class="feature-chip" onclick="switchTab('health')">
+        <div class="feature-chip-icon">🩺</div>
+        <div class="feature-chip-label" id="fc1">Animal Health Monitoring</div>
+      </div>
+      <div class="feature-chip" onclick="switchTab('breed')">
+        <div class="feature-chip-icon">🌱</div>
+        <div class="feature-chip-label" id="fc2">Fertility & Breeding Planner</div>
+      </div>
+      <div class="feature-chip" onclick="switchTab('feed')">
+        <div class="feature-chip-icon">🌾</div>
+        <div class="feature-chip-label" id="fc3">Feed-to-Yield Guidance</div>
+      </div>
+      <div class="feature-chip" onclick="switchTab('herd')">
+        <div class="feature-chip-icon">📋</div>
+        <div class="feature-chip-label" id="fc4">My Herd Records</div>
+      </div>
+      <div class="feature-chip" onclick="switchTab('health');setTimeout(()=>document.getElementById('mastitis-section').scrollIntoView({behavior:'smooth'}),200)">
+        <div class="feature-chip-icon">🔬</div>
+        <div class="feature-chip-label" id="fc5">Mastitis Early Detection</div>
+      </div>
+      <div class="feature-chip" onclick="switchTab('feed');setTimeout(()=>document.getElementById('carbon-section').scrollIntoView({behavior:'smooth'}),200)">
+        <div class="feature-chip-icon">🌍</div>
+        <div class="feature-chip-label" id="fc6">Low-Carbon Dairy Advisor</div>
+      </div>
+    </div>
+
+    <!-- ALERTS PANEL -->
+    <div class="section-title">🔔 <span id="alerts-title">Today's Alerts</span></div>
+    <div id="alertsPanel">
+      <div class="alert alert-warning">⚠️ <span><strong>Rani (Cow #2)</strong> – Heat cycle expected in 3 days. Prepare for insemination.</span></div>
+      <div class="alert alert-danger">🚨 <span><strong>Kali (Buffalo #1)</strong> – Milk yield dropped 20% this week. Check udder health.</span></div>
+      <div class="alert alert-success">✅ <span><strong>Gauri (Cow #1)</strong> – Health status normal. Next vaccination due in 12 days.</span></div>
+    </div>
+
+  </div><!-- /panel-home -->
+
+
+  <!-- ═══════════ HEALTH TAB ═══════════ -->
+  <div class="panel" id="panel-health">
+
+    <div class="section-title">🩺 <span id="ht-title">Animal Health & Body Condition Monitoring</span></div>
+
+    <!-- HEALTH CHECK FORM -->
+    <div class="card">
+      <div class="card-title" id="card-log-health">📝 Log Health Observation</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-select-animal">Select Animal</label>
+          <select id="healthAnimal">
+            <option>Gauri – Cow #1</option>
+            <option>Rani – Cow #2</option>
+            <option>Kali – Buffalo #1</option>
+            <option>+ Add New Animal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-obs-date">Date of Observation</label>
+          <input type="date" id="obsDate" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-milk-yield">Milk Yield Today (Litres)</label>
+          <input type="number" id="milkYield" placeholder="e.g. 8.5" min="0" step="0.5" />
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-body-temp">Body Temperature (°F)</label>
+          <input type="number" id="bodyTemp" placeholder="Normal: 101–102.5" min="95" max="110" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-bcs">Body Condition Score (1–5)</label>
+          <select id="bcs">
+            <option value="1">1 – Very Thin</option>
+            <option value="2">2 – Thin</option>
+            <option value="3" selected>3 – Ideal</option>
+            <option value="4">4 – Fat</option>
+            <option value="5">5 – Very Fat</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-appetite">Appetite</label>
+          <select id="appetite">
+            <option value="normal">Normal</option>
+            <option value="reduced">Reduced</option>
+            <option value="none">Not Eating</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label data-i18n-label="lbl-symptoms">Visible Symptoms (select all that apply)</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px" id="symptomsGrid">
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="udder_swelling"> Udder Swelling</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="limping"> Limping / Lameness</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="diarrhea"> Loose Stool / Diarrhea</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="nasal"> Nasal Discharge</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="restless"> Restlessness</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="bloating"> Bloating</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="lethargy"> Lethargy / Dull Eyes</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="abnormal_milk"> Abnormal Milk (watery/bloody)</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label data-i18n-label="lbl-add-notes">Additional Notes</label>
+        <textarea id="healthNotes" placeholder="Any other observations..."></textarea>
+      </div>
+
+      <!-- PHOTO UPLOAD FOR HEALTH -->
+      <div class="form-group">
+        <label data-i18n-label="lbl-upload-health">📷 Upload Photo of Affected Area</label>
+        <div class="upload-zone">
+          <input type="file" id="healthImageInput" accept="image/*" onchange="previewHealthImage(event)" />
+          <div class="upload-icon">🔬</div>
+          <div class="upload-text">Photo helps AI assess udder condition, body score, and visible signs</div>
+        </div>
+        <img id="healthImagePreview" style="max-width:100%;max-height:180px;margin-top:10px;display:none;border-radius:8px" />
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="analyzeHealth()" data-i18n="btn-ai-health">🤖 AI Health Analysis</button>
+        <button class="btn btn-secondary" onclick="logHealthEntry()" data-i18n="btn-save-log">💾 Save to Log</button>
+      </div>
+
+      <div class="ai-response" id="healthAIResponse">
+        <div class="ai-response-header">🩺 Health Analysis Result</div>
+        <div class="ai-response-body" id="healthAIResponseBody"></div>
+        <button class="speak-btn" onclick="speakText(document.getElementById('healthAIResponseBody').innerText)">🔊 Listen</button>
+      </div>
+    </div>
+
+    <!-- MASTITIS SECTION -->
+    <div id="mastitis-section" class="card">
+      <div class="card-title" id="card-mastitis">🔬 Mastitis Risk Checker</div>
+      <p style="font-size:0.85rem;color:var(--text-sub);margin-bottom:14px">Subclinical mastitis costs ₹1,390 per lactation on average. Early detection is critical.</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-select-animal">Animal</label>
+          <select id="mastitisAnimal">
+            <option>Gauri – Cow #1</option>
+            <option>Rani – Cow #2</option>
+            <option>Kali – Buffalo #1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-udder-condition">Udder Condition</label>
+          <select id="udderCondition">
+            <option value="normal">Normal – Soft, Even</option>
+            <option value="slightly_hard">Slightly Hard / One Quarter</option>
+            <option value="very_hard">Very Hard / Hot / Painful</option>
+            <option value="asymmetric">Asymmetric Quarters</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-milk-appearance">Milk Appearance</label>
+          <select id="milkAppearance">
+            <option value="normal">Normal White / Creamy</option>
+            <option value="watery">Watery / Thin</option>
+            <option value="flakes">Flakes / Clots</option>
+            <option value="bloody">Bloody / Pink</option>
+            <option value="yellowish">Yellowish / Green</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-days-calving">Days Since Last Calving</label>
+          <input type="number" id="daysCalving" placeholder="e.g. 45" min="0" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="checkMastitis()" data-i18n="btn-check-mastitis">🔍 Check Mastitis Risk</button>
+      <div class="ai-response" id="mastitisResponse">
+        <div class="ai-response-header">🔬 Mastitis Risk Assessment</div>
+        <div class="ai-response-body" id="mastitisBody"></div>
+        <button class="speak-btn" onclick="speakText(document.getElementById('mastitisBody').innerText)">🔊 Listen</button>
+      </div>
+    </div>
+
+    <!-- HEALTH LOG -->
+    <div class="card">
+      <div class="card-title" id="card-health-log">📅 Health Log</div>
+      <div id="healthLog">
+        <div class="log-entry">
+          <div class="log-date">12 Jun 2026 – Gauri (Cow #1)</div>
+          Milk: 9L | Temp: 101.5°F | BCS: 3 | Appetite: Normal | Status: ✅ Healthy
+        </div>
+        <div class="log-entry">
+          <div class="log-date">10 Jun 2026 – Kali (Buffalo #1)</div>
+          Milk: 6L (↓ from 8L) | Temp: 103.2°F | Udder: Slightly Hard | ⚠️ Monitoring
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel-health -->
+
+
+  <!-- ═══════════ BREEDING TAB ═══════════ -->
+  <div class="panel" id="panel-breed">
+
+    <div class="section-title" id="bt-title">🌱 Fertility & Insemination Planner</div>
+    <p style="font-size:0.85rem;color:var(--text-sub);margin-bottom:20px">Missing a heat (estrus) cycle costs farmers ~21 days of reproductive opportunity. We track it for you.</p>
+
+    <!-- CYCLE TRACKER -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" id="card-cycle">📅 Estrus Cycle Tracker</div>
+        <div class="form-group">
+          <label>Select Animal</label>
+          <select id="breedAnimal" onchange="updateCycleDisplay()">
+            <option value="gauri">Gauri – Cow #1</option>
+            <option value="rani">Rani – Cow #2</option>
+            <option value="kali">Kali – Buffalo #1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-last-heat">Last Heat Date</label>
+          <input type="date" id="lastHeatDate" onchange="updateCycleDisplay()" />
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-last-calving">Last Calving Date</label>
+          <input type="date" id="lastCalvingDate" />
+        </div>
+        <button class="btn btn-primary" onclick="getBreedingAdvice()" data-i18n="btn-ai-breeding">🤖 AI Breeding Advisory</button>
+        <div class="ai-response" id="breedingResponse">
+          <div class="ai-response-header">🌱 Breeding Advisory</div>
+          <div class="ai-response-body" id="breedingBody"></div>
+          <button class="speak-btn" onclick="speakText(document.getElementById('breedingBody').innerText)">🔊 Listen</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" id="card-cycle-status">⏱️ Cycle Status</div>
+        <div id="cycleDisplay">
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px">
+              <span>Gauri – Cow #1</span><span id="cycleDaysText">Day 14 / 21</span>
+            </div>
+            <div class="cycle-bar"><div class="cycle-fill yellow" id="cycleFill" style="width:67%"></div></div>
+            <div class="alert alert-warning" style="margin-top:8px;padding:8px 12px;font-size:0.8rem">
+              🔥 Heat expected in ~7 days. Plan insemination.
+            </div>
+          </div>
+          <div style="font-size:0.82rem;color:var(--text-sub)">
+            <div class="risk-row"><span class="risk-label">Conception Probability</span><span class="risk-pill badge-ok">72%</span></div>
+            <div class="risk-row"><span class="risk-label">Days Open</span><span class="risk-pill badge-watch">87 days</span></div>
+            <div class="risk-row"><span class="risk-label">Recommended Action</span><span class="risk-pill badge-ok">Monitor</span></div>
+          </div>
+        </div>
+
+        <hr style="margin:16px 0;border-color:var(--green-pale)">
+
+        <div class="card-title" style="font-size:0.9rem" id="card-heat-checklist">📋 Heat Signs Checklist</div>
+        <div id="heatSigns" style="font-size:0.83rem;color:var(--text-sub)">
+          <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;font-weight:400"><input type="checkbox"> Mounting other animals or being mounted</label>
+          <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;font-weight:400"><input type="checkbox"> Clear mucus discharge from vulva</label>
+          <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;font-weight:400"><input type="checkbox"> Restlessness / increased activity</label>
+          <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;font-weight:400"><input type="checkbox"> Swollen or reddened vulva</label>
+          <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;font-weight:400"><input type="checkbox"> Reduced feed intake</label>
+          <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;font-weight:400"><input type="checkbox"> Milk drop (temporary)</label>
+        </div>
+        <button class="btn btn-secondary" style="margin-top:10px" onclick="checkHeatSigns()" data-i18n="btn-check-heat">✅ Check Heat Signs</button>
+      </div>
+    </div>
+
+    <!-- INSEMINATION LOG -->
+    <div class="card">
+      <div class="card-title" id="card-insem">💉 Insemination Record</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-insem-animal">Animal</label>
+          <select id="aiAnimal">
+            <option>Gauri – Cow #1</option>
+            <option>Rani – Cow #2</option>
+            <option>Kali – Buffalo #1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-insem-date">Insemination Date</label>
+          <input type="date" id="aiDate" />
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-bull-type">Bull / Semen Type</label>
+          <input type="text" id="aiType" placeholder="e.g. HF Cross, Jersey..." />
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-done-by">Done By</label>
+          <select id="aiBy">
+            <option>Government AI Center</option>
+            <option>Private Vet</option>
+            <option>Co-operative</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="logInsemination()" data-i18n="btn-save-insem">💾 Save Record</button>
+      <div id="aiLog" style="margin-top:14px">
+        <div class="log-entry"><div class="log-date">15 May 2026 – Gauri (Cow #1)</div>HF Cross | Government AI Center | Pregnancy check due: 14 Jun 2026</div>
+      </div>
+    </div>
+
+  </div><!-- /panel-breed -->
+
+
+  <!-- ═══════════ FEED TAB ═══════════ -->
+  <div class="panel" id="panel-feed">
+
+    <div class="section-title" id="ft-title">🌾 Feed-to-Yield Guidance & Nutrition Advisor</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" id="card-feed-rec">🌿 Get Feed Recommendation (ICAR Norms)</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label data-i18n-label="lbl-feed-animal">Animal Type & Breed</label>
+            <select id="feedAnimalType">
+              <option value="hf_cross">HF Cross Cow</option>
+              <option value="jersey">Jersey Cow</option>
+              <option value="sahiwal">Sahiwal (Indigenous)</option>
+              <option value="murrah">Murrah Buffalo</option>
+              <option value="jaffarabadi">Jaffarabadi Buffalo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-i18n-label="lbl-body-weight">Body Weight (kg)</label>
+            <input type="number" id="bodyWeight" placeholder="e.g. 400" min="100" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label data-i18n-label="lbl-feed-milk">Current Daily Milk Yield (L)</label>
+            <input type="number" id="feedMilkYield" placeholder="e.g. 10" min="0" step="0.5" />
+          </div>
+          <div class="form-group">
+            <label data-i18n-label="lbl-lact-stage">Lactation Stage</label>
+            <select id="lactStage">
+              <option value="early">Early (0–3 months)</option>
+              <option value="mid">Mid (3–6 months)</option>
+              <option value="late">Late (6+ months)</option>
+              <option value="dry">Dry Period</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-feed-resources">Available Local Feed Resources</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+            <label style="font-weight:400;cursor:pointer;font-size:0.83rem"><input type="checkbox" id="f_green" checked> Green Fodder</label>
+            <label style="font-weight:400;cursor:pointer;font-size:0.83rem"><input type="checkbox" id="f_dry" checked> Dry Straw</label>
+            <label style="font-weight:400;cursor:pointer;font-size:0.83rem"><input type="checkbox" id="f_cotton"> Cottonseed Cake</label>
+            <label style="font-weight:400;cursor:pointer;font-size:0.83rem"><input type="checkbox" id="f_maize"> Maize Silage</label>
+            <label style="font-weight:400;cursor:pointer;font-size:0.83rem"><input type="checkbox" id="f_grain" checked> Grain Mix / Concentrate</label>
+            <label style="font-weight:400;cursor:pointer;font-size:0.83rem"><input type="checkbox" id="f_mineral"> Mineral Mixture</label>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="getFeedAdvice()" data-i18n="btn-ai-feed">🤖 AI Feed Recommendation</button>
+        <div class="ai-response" id="feedAIResponse">
+          <div class="ai-response-header">🌾 Feed Advisory (ICAR-Aligned)</div>
+          <div class="ai-response-body" id="feedAIBody"></div>
+          <button class="speak-btn" onclick="speakText(document.getElementById('feedAIBody').innerText)">🔊 Listen</button>
+        </div>
+      </div>
+
+      <!-- MILK YIELD PREDICTOR -->
+      <div class="card">
+        <div class="card-title" id="card-yield-pred">📈 Milk Yield Predictor</div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-pred-breed">Breed</label>
+          <select id="predBreed">
+            <option>HF Cross</option>
+            <option>Jersey</option>
+            <option>Sahiwal</option>
+            <option>Murrah Buffalo</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label data-i18n-label="lbl-pred-age">Age (years)</label>
+            <input type="number" id="predAge" placeholder="e.g. 4" min="1" max="15" />
+          </div>
+          <div class="form-group">
+            <label data-i18n-label="lbl-pred-parity">Parity (Lactation #)</label>
+            <input type="number" id="predParity" placeholder="e.g. 2" min="1" max="10" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-pred-bcs">BCS</label>
+          <select id="predBCS">
+            <option value="2">2 – Thin</option>
+            <option value="3" selected>3 – Ideal</option>
+            <option value="4">4 – Fat</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="predictYield()" data-i18n="btn-predict-yield">📊 Predict Milk Yield</button>
+        <div class="ai-response" id="yieldResponse">
+          <div class="ai-response-header">📊 Yield Prediction</div>
+          <div class="ai-response-body" id="yieldBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOW CARBON ADVISOR -->
+    <div id="carbon-section" class="card">
+      <div class="card-title" id="card-carbon">🌍 Low-Carbon Dairy Advisor</div>
+      <p style="font-size:0.85rem;color:var(--text-sub);margin-bottom:14px">Reduce methane emissions while improving feed efficiency and farm income.</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-herd-size">Herd Size</label>
+          <input type="number" id="herdSize" placeholder="e.g. 5" min="1" />
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-manure">Manure Management</label>
+          <select id="manureMethod">
+            <option value="open">Open dumping</option>
+            <option value="compost">Composting</option>
+            <option value="biogas">Biogas Plant</option>
+            <option value="field">Direct field use</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-carbon-milk">Average Daily Milk Yield / Animal (L)</label>
+          <input type="number" id="carbonMilk" placeholder="e.g. 8" min="1" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="getCarbonAdvice()" data-i18n="btn-carbon">🌱 Get Low-Carbon Advisory</button>
+      <div class="ai-response" id="carbonResponse">
+        <div class="ai-response-header">🌍 Carbon & Sustainability Advisory</div>
+        <div class="ai-response-body" id="carbonBody"></div>
+        <button class="speak-btn" onclick="speakText(document.getElementById('carbonBody').innerText)">🔊 Listen</button>
+      </div>
+    </div>
+
+  </div><!-- /panel-feed -->
+
+
+  <!-- ═══════════ HERD TAB ═══════════ -->
+  <div class="panel" id="panel-herd">
+
+    <div class="section-title" style="justify-content:space-between">
+      <span id="hrd-title">📋 My Herd Records</span>
+      <button class="btn btn-primary" style="font-size:0.78rem;padding:7px 14px" onclick="showAddAnimalForm()">➕ Add Animal</button>
+    </div>
+
+    <!-- ADD ANIMAL FORM -->
+    <div class="card" id="addAnimalForm" style="display:none">
+      <div class="card-title" id="card-add-animal">➕ Register New Animal</div>
+      <div class="form-row">
+        <div class="form-group"><label data-i18n-label="lbl-new-name">Animal Name / Tag ID</label><input type="text" id="newName" placeholder="e.g. Lakshmi or #005" /></div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-species">Species</label>
+          <select id="newSpecies">
+            <option>Cow</option><option>Buffalo</option><option>Calf</option>
+          </select>
+        </div>
+        <div class="form-group"><label data-i18n-label="lbl-breed-input">Breed</label><input type="text" id="newBreed" placeholder="e.g. HF Cross" /></div>
+        <div class="form-group"><label data-i18n-label="lbl-dob">Date of Birth</label><input type="date" id="newDOB" /></div>
+        <div class="form-group"><label data-i18n-label="lbl-purchase-date">Purchase / Calving Date</label><input type="date" id="newDate" /></div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-new-bcs">Current BCS</label>
+          <select id="newBCS">
+            <option>1</option><option>2</option><option value="3" selected>3</option><option>4</option><option>5</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="addAnimal()" data-i18n="btn-save-animal">💾 Save Animal</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('addAnimalForm').style.display='none'" data-i18n="btn-cancel">Cancel</button>
+      </div>
+    </div>
+
+    <!-- ANIMAL CARDS -->
+    <div id="animalList">
+      <div class="animal-card" onclick="selectAnimal(this,'Gauri – Cow #1')">
+        <div class="animal-header">
+          <div class="animal-name">🐄 Gauri – Cow #1</div>
+          <span class="animal-badge badge-ok">✅ Healthy</span>
+        </div>
+        <div class="animal-meta">HF Cross | Age: 4 yrs | BCS: 3 | Milk: ~9L/day | Last Calving: 15 Mar 2026</div>
+        <div style="margin-top:8px;font-size:0.8rem;color:var(--text-sub)">Next vaccination: 24 Jun 2026 &nbsp;|&nbsp; Cycle Day: 14/21</div>
+      </div>
+      <div class="animal-card" onclick="selectAnimal(this,'Rani – Cow #2')">
+        <div class="animal-header">
+          <div class="animal-name">🐄 Rani – Cow #2</div>
+          <span class="animal-badge badge-watch">🔔 Heat Soon</span>
+        </div>
+        <div class="animal-meta">Jersey Cross | Age: 5 yrs | BCS: 3 | Milk: ~7L/day | Last Calving: 10 Jan 2026</div>
+        <div style="margin-top:8px;font-size:0.8rem;color:var(--text-sub)">Heat expected: 15 Jun 2026 &nbsp;|&nbsp; Insemination recommended</div>
+      </div>
+      <div class="animal-card" onclick="selectAnimal(this,'Kali – Buffalo #1')">
+        <div class="animal-header">
+          <div class="animal-name">🐃 Kali – Buffalo #1</div>
+          <span class="animal-badge badge-alert">⚠️ Check Needed</span>
+        </div>
+        <div class="animal-meta">Murrah | Age: 6 yrs | BCS: 2.5 | Milk: ~6L/day (↓) | Last Calving: 20 Nov 2025</div>
+        <div style="margin-top:8px;font-size:0.8rem;color:var(--text-sub)">Milk drop detected &nbsp;|&nbsp; Udder check recommended</div>
+      </div>
+    </div>
+
+    <!-- SELECTED ANIMAL DETAIL -->
+    <div class="card" id="animalDetail" style="display:none;margin-top:20px">
+      <div class="card-title" id="detailTitle">Animal Detail</div>
+      <div id="detailContent"></div>
+      <button class="btn btn-primary" style="margin-top:12px" onclick="getAnimalSummary()" data-i18n="btn-ai-summary">🤖 AI Full Health Summary</button>
+      <div class="ai-response" id="animalSummaryResponse">
+        <div class="ai-response-header">📋 AI Animal Summary</div>
+        <div class="ai-response-body" id="animalSummaryBody"></div>
+        <button class="speak-btn" onclick="speakText(document.getElementById('animalSummaryBody').innerText)">🔊 Listen</button>
+      </div>
+    </div>
+
+    <!-- HERD STATS -->
+    <div class="section-title" style="margin-top:24px" id="card-herd-overview">📊 Herd Overview</div>
+    <div class="grid-3">
+      <div class="stat-card">
+        <div class="stat-icon green">🐄</div>
+        <div><div class="stat-value">3</div><div class="stat-label">Total Animals</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue">🥛</div>
+        <div><div class="stat-value">22L</div><div class="stat-label">Daily Milk Yield</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon yellow">🔔</div>
+        <div><div class="stat-value">2</div><div class="stat-label">Alerts Today</div></div>
+      </div>
+    </div>
+
+  </div><!-- /panel-herd -->
+
+</div><!-- /app-container -->
+
+<footer>
+  <p id="footer-line1">🐄 GAU SAARTHI – Voice-Based AI Dairy Decision Support &nbsp;|&nbsp; Powered by Claude AI &nbsp;|&nbsp; ICAR & NDDB Aligned &nbsp;|&nbsp; Team M-Square</p>
+  <p style="margin-top:4px" id="footer-line2">Mehakpreet Kaur &nbsp;&amp;&nbsp; Midushi Maheshwari &nbsp;|&nbsp; This is an advisory tool only – always consult a veterinarian for medical decisions.</p>
+</footer>
+
+</div><!-- /appScreen -->
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+// ─── STATE ───────────────────────────────────────────
+let currentLang = 'en';
+let selectedAnimalName = '';
+let isRecording = false;
+let recognitionActive = false;
+let speechRec = null;
+let imageBase64 = null;
+let healthImageBase64 = null;
+
+// ─── COMPREHENSIVE TRANSLATIONS ──────────────────────
+const T = {
+  en: {
+    // Login screen
+    'loginTagline': 'AI Dairy Assistant',
+    'lblMobile': 'Mobile Number',
+    'lblPassword': 'Password',
+    'loginBtn': 'Login',
+    'loginFooter': 'Demo: any number + any password',
+    // Header
+    'h-sub': 'Voice-Based AI Dairy Assistant',
+    'logoutBtn': 'Logout',
+    // Nav
+    'nav-home': '🏠 Home',
+    'nav-health': '🩺 Health',
+    'nav-breed': '🌱 Breeding',
+    'nav-feed': '🌾 Feed',
+    'nav-herd': '📋 My Herd',
+    // Home panel
+    'hero-title': '🐄 Welcome to GAU SAARTHI',
+    'hero-desc': 'Your AI-powered dairy companion. Speak naturally, share a photo, and get expert guidance on animal health, breeding, and feeding – right now, in your language.',
+    'qa-title': 'Quick AI Advisory',
+    'qa-label': "Describe your animal's problem in your own words",
+    'qa-animal': 'Animal Type',
+    'qa-concern': 'Main Concern',
+    'qa-btn': 'Get AI Advisory',
+    'ai-resp-title': 'AI Advisory',
+    'fg-title': 'Core Features',
+    'alerts-title': "Today's Alerts",
+    'fc1': 'Animal Health Monitoring',
+    'fc2': 'Fertility & Breeding Planner',
+    'fc3': 'Feed-to-Yield Guidance',
+    'fc4': 'My Herd Records',
+    'fc5': 'Mastitis Early Detection',
+    'fc6': 'Low-Carbon Dairy Advisor',
+    // Health panel
+    'ht-title': 'Animal Health & Body Condition Monitoring',
+    // Breeding panel
+    'bt-title': 'Fertility & Insemination Planner',
+    // Feed panel
+    'ft-title': 'Feed-to-Yield Guidance & Nutrition Advisor',
+    // Herd panel
+    'hrd-title': 'My Herd Records',
+    // Buttons
+    'btn-get-ai-advisory': '🤖 Get AI Advisory',
+    'btn-clear': '🗑️ Clear',
+    'btn-ai-health': '🤖 AI Health Analysis',
+    'btn-save-log': '💾 Save to Log',
+    'btn-check-mastitis': '🔍 Check Mastitis Risk',
+    'btn-ai-breeding': '🤖 AI Breeding Advisory',
+    'btn-check-heat': '✅ Check Heat Signs',
+    'btn-save-insem': '💾 Save Record',
+    'btn-ai-feed': '🤖 AI Feed Recommendation',
+    'btn-predict-yield': '📊 Predict Milk Yield',
+    'btn-carbon': '🌱 Get Low-Carbon Advisory',
+    'btn-add-animal': '➕ Add Animal',
+    'btn-save-animal': '💾 Save Animal',
+    'btn-cancel': 'Cancel',
+    'btn-ai-summary': '🤖 AI Full Health Summary',
+    'btn-listen': '🔊 Listen to Advisory',
+    // Labels — Health form
+    'lbl-select-animal': 'Select Animal',
+    'lbl-obs-date': 'Date of Observation',
+    'lbl-milk-yield': 'Milk Yield Today (Litres)',
+    'lbl-body-temp': 'Body Temperature (°F)',
+    'lbl-bcs': 'Body Condition Score (1–5)',
+    'lbl-appetite': 'Appetite',
+    'lbl-symptoms': 'Visible Symptoms (select all that apply)',
+    'lbl-add-notes': 'Additional Notes',
+    'lbl-upload-health': '📷 Upload Photo of Affected Area',
+    // Labels — Breeding form
+    'lbl-breed-animal': 'Select Animal',
+    'lbl-last-heat': 'Last Heat Date',
+    'lbl-last-calving': 'Last Calving Date',
+    'lbl-insem-animal': 'Animal',
+    'lbl-insem-date': 'Insemination Date',
+    'lbl-bull-type': 'Bull / Semen Type',
+    'lbl-done-by': 'Done By',
+    // Labels — Feed form
+    'lbl-feed-animal': 'Animal Type & Breed',
+    'lbl-body-weight': 'Body Weight (kg)',
+    'lbl-feed-milk': 'Current Daily Milk Yield (L)',
+    'lbl-lact-stage': 'Lactation Stage',
+    'lbl-feed-resources': 'Available Local Feed Resources',
+    'lbl-pred-breed': 'Breed',
+    'lbl-pred-age': 'Age (years)',
+    'lbl-pred-parity': 'Parity (Lactation #)',
+    'lbl-pred-bcs': 'BCS',
+    'lbl-herd-size': 'Herd Size',
+    'lbl-manure': 'Manure Management',
+    'lbl-carbon-milk': 'Average Daily Milk Yield / Animal (L)',
+    // Labels — Herd form
+    'lbl-new-name': 'Animal Name / Tag ID',
+    'lbl-species': 'Species',
+    'lbl-breed-input': 'Breed',
+    'lbl-dob': 'Date of Birth',
+    'lbl-purchase-date': 'Purchase / Calving Date',
+    'lbl-new-bcs': 'Current BCS',
+    // Card titles
+    'card-log-health': '📝 Log Health Observation',
+    'card-mastitis': '🔬 Mastitis Risk Checker',
+    'card-health-log': '📅 Health Log',
+    'card-cycle': '📅 Estrus Cycle Tracker',
+    'card-cycle-status': '⏱️ Cycle Status',
+    'card-heat-checklist': '📋 Heat Signs Checklist',
+    'card-insem': '💉 Insemination Record',
+    'card-feed-rec': '🌿 Get Feed Recommendation (ICAR Norms)',
+    'card-yield-pred': '📈 Milk Yield Predictor',
+    'card-carbon': '🌍 Low-Carbon Dairy Advisor',
+    'card-add-animal': '➕ Register New Animal',
+    'card-herd-overview': '📊 Herd Overview',
+    // Placeholders
+    'ph-problem': 'e.g. My cow is eating less and milk production has dropped...',
+    'ph-milk': 'e.g. 8.5',
+    'ph-temp': 'Normal: 101–102.5',
+    'ph-days-calving': 'e.g. 45',
+    'ph-body-weight': 'e.g. 400',
+    'ph-feed-milk': 'e.g. 10',
+    'ph-pred-age': 'e.g. 4',
+    'ph-pred-parity': 'e.g. 2',
+    'ph-herd-size': 'e.g. 5',
+    'ph-carbon-milk': 'e.g. 8',
+    'ph-new-name': 'e.g. Lakshmi or #005',
+    'ph-new-breed': 'e.g. HF Cross',
+    'ph-bull-type': 'e.g. HF Cross, Jersey...',
+    'ph-notes': 'Any other observations...',
+    'lbl-udder-condition': 'Udder Condition',
+    'lbl-milk-appearance': 'Milk Appearance',
+    'lbl-days-calving': 'Days Since Last Calving',
+    // Footer
+    'footer-line1': '🐄 GAU SAARTHI – Voice-Based AI Dairy Decision Support | Powered by Claude AI | ICAR & NDDB Aligned | Team M-Square',
+    'footer-line2': 'Mehakpreet Kaur & Midushi Maheshwari | This is an advisory tool only – always consult a veterinarian for medical decisions.',
+  },
+
+  hi: {
+    'loginTagline': 'AI डेयरी सहायक',
+    'lblMobile': 'मोबाइल नंबर',
+    'lblPassword': 'पासवर्ड',
+    'loginBtn': 'लॉगिन करें',
+    'loginFooter': 'डेमो: कोई भी नंबर + कोई भी पासवर्ड',
+    'h-sub': 'आवाज़-आधारित AI डेयरी सहायक',
+    'logoutBtn': 'लॉग आउट',
+    'nav-home': '🏠 होम',
+    'nav-health': '🩺 स्वास्थ्य',
+    'nav-breed': '🌱 प्रजनन',
+    'nav-feed': '🌾 चारा',
+    'nav-herd': '📋 मेरा झुंड',
+    'hero-title': '🐄 गाऊ सारथी में स्वागत है',
+    'hero-desc': 'आपका AI-आधारित डेयरी सहायक। अपनी भाषा में बोलें, फोटो शेयर करें, और पशु स्वास्थ्य, प्रजनन और पोषण पर विशेषज्ञ सलाह पाएं।',
+    'qa-title': 'त्वरित AI सलाह',
+    'qa-label': 'अपने पशु की समस्या अपने शब्दों में बताइए',
+    'qa-animal': 'पशु का प्रकार',
+    'qa-concern': 'मुख्य समस्या',
+    'qa-btn': 'AI सलाह लें',
+    'ai-resp-title': 'AI सलाह',
+    'fg-title': 'मुख्य सुविधाएं',
+    'alerts-title': 'आज की चेतावनियां',
+    'fc1': 'पशु स्वास्थ्य निगरानी',
+    'fc2': 'प्रजनन योजनाकार',
+    'fc3': 'चारा-से-उपज मार्गदर्शन',
+    'fc4': 'मेरा झुंड',
+    'fc5': 'मास्टिटिस शीघ्र पहचान',
+    'fc6': 'कम-कार्बन डेयरी सलाहकार',
+    'ht-title': 'पशु स्वास्थ्य और शारीरिक स्थिति की निगरानी',
+    'bt-title': 'प्रजनन और गर्भाधान योजनाकार',
+    'ft-title': 'चारा-से-उपज मार्गदर्शन और पोषण सलाहकार',
+    'hrd-title': 'मेरे झुंड के रिकॉर्ड',
+    'btn-get-ai-advisory': '🤖 AI सलाह लें',
+    'btn-clear': '🗑️ साफ़ करें',
+    'btn-ai-health': '🤖 AI स्वास्थ्य विश्लेषण',
+    'btn-save-log': '💾 लॉग में सहेजें',
+    'btn-check-mastitis': '🔍 मास्टिटिस जोखिम जांचें',
+    'btn-ai-breeding': '🤖 AI प्रजनन सलाह',
+    'btn-check-heat': '✅ गर्मी के संकेत जांचें',
+    'btn-save-insem': '💾 रिकॉर्ड सहेजें',
+    'btn-ai-feed': '🤖 AI चारा सिफारिश',
+    'btn-predict-yield': '📊 दूध उत्पादन पूर्वानुमान',
+    'btn-carbon': '🌱 कम-कार्बन सलाह लें',
+    'btn-add-animal': '➕ पशु जोड़ें',
+    'btn-save-animal': '💾 पशु सहेजें',
+    'btn-cancel': 'रद्द करें',
+    'btn-ai-summary': '🤖 AI पूर्ण स्वास्थ्य सारांश',
+    'btn-listen': '🔊 सलाह सुनें',
+    'lbl-select-animal': 'पशु चुनें',
+    'lbl-obs-date': 'निरीक्षण की तारीख',
+    'lbl-milk-yield': 'आज का दूध उत्पादन (लीटर)',
+    'lbl-body-temp': 'शरीर का तापमान (°F)',
+    'lbl-bcs': 'शारीरिक स्थिति स्कोर (1–5)',
+    'lbl-appetite': 'भूख',
+    'lbl-symptoms': 'दिखाई देने वाले लक्षण (सभी चुनें)',
+    'lbl-add-notes': 'अतिरिक्त नोट्स',
+    'lbl-upload-health': '📷 प्रभावित क्षेत्र की फोटो अपलोड करें',
+    'lbl-breed-animal': 'पशु चुनें',
+    'lbl-last-heat': 'अंतिम गर्मी की तारीख',
+    'lbl-last-calving': 'अंतिम प्रसव की तारीख',
+    'lbl-insem-animal': 'पशु',
+    'lbl-insem-date': 'गर्भाधान की तारीख',
+    'lbl-bull-type': 'बैल / वीर्य प्रकार',
+    'lbl-done-by': 'किसने किया',
+    'lbl-feed-animal': 'पशु प्रकार और नस्ल',
+    'lbl-body-weight': 'शरीर का वजन (किग्रा)',
+    'lbl-feed-milk': 'वर्तमान दैनिक दूध उत्पादन (लीटर)',
+    'lbl-lact-stage': 'दुग्धकाल की अवस्था',
+    'lbl-feed-resources': 'उपलब्ध स्थानीय चारा संसाधन',
+    'lbl-pred-breed': 'नस्ल',
+    'lbl-pred-age': 'आयु (वर्ष)',
+    'lbl-pred-parity': 'पैरिटी (दुग्धकाल #)',
+    'lbl-pred-bcs': 'BCS',
+    'lbl-herd-size': 'झुंड का आकार',
+    'lbl-manure': 'खाद प्रबंधन',
+    'lbl-carbon-milk': 'औसत दैनिक दूध उत्पादन / पशु (लीटर)',
+    'lbl-new-name': 'पशु का नाम / टैग ID',
+    'lbl-species': 'प्रजाति',
+    'lbl-breed-input': 'नस्ल',
+    'lbl-dob': 'जन्म तिथि',
+    'lbl-purchase-date': 'खरीद / प्रसव की तारीख',
+    'lbl-new-bcs': 'वर्तमान BCS',
+    'card-log-health': '📝 स्वास्थ्य अवलोकन दर्ज करें',
+    'card-mastitis': '🔬 मास्टिटिस जोखिम जांचकर्ता',
+    'card-health-log': '📅 स्वास्थ्य लॉग',
+    'card-cycle': '📅 गर्मी चक्र ट्रैकर',
+    'card-cycle-status': '⏱️ चक्र की स्थिति',
+    'card-heat-checklist': '📋 गर्मी संकेत चेकलिस्ट',
+    'card-insem': '💉 गर्भाधान रिकॉर्ड',
+    'card-feed-rec': '🌿 चारा सिफारिश प्राप्त करें (ICAR मानक)',
+    'card-yield-pred': '📈 दूध उत्पादन पूर्वानुमान',
+    'card-carbon': '🌍 कम-कार्बन डेयरी सलाहकार',
+    'card-add-animal': '➕ नया पशु पंजीकृत करें',
+    'card-herd-overview': '📊 झुंड का अवलोकन',
+    'ph-problem': 'जैसे: मेरी गाय कम खा रही है और दूध कम हो गया है...',
+    'ph-milk': 'जैसे: 8.5',
+    'ph-temp': 'सामान्य: 101–102.5',
+    'ph-days-calving': 'जैसे: 45',
+    'ph-body-weight': 'जैसे: 400',
+    'ph-feed-milk': 'जैसे: 10',
+    'ph-pred-age': 'जैसे: 4',
+    'ph-pred-parity': 'जैसे: 2',
+    'ph-herd-size': 'जैसे: 5',
+    'ph-carbon-milk': 'जैसे: 8',
+    'ph-new-name': 'जैसे: लक्ष्मी या #005',
+    'ph-new-breed': 'जैसे: HF Cross',
+    'ph-bull-type': 'जैसे: HF Cross, Jersey...',
+    'ph-notes': 'कोई अन्य टिप्पणी...',
+    'lbl-udder-condition': 'थन की स्थिति',
+    'lbl-milk-appearance': 'दूध का रूप',
+    'lbl-days-calving': 'पिछले प्रसव के बाद के दिन',
+    'footer-line1': '🐄 गाऊ सारथी – आवाज़-आधारित AI डेयरी निर्णय समर्थन | Claude AI द्वारा संचालित | ICAR और NDDB संरेखित | टीम M-Square',
+    'footer-line2': 'मेहकप्रीत कौर और मिदुशी माहेश्वरी | यह केवल एक सलाहकार उपकरण है – चिकित्सा निर्णयों के लिए हमेशा पशु चिकित्सक से परामर्श करें।',
+  },
+
+  pa: {
+    'loginTagline': 'AI ਡੇਅਰੀ ਸਹਾਇਕ',
+    'lblMobile': 'ਮੋਬਾਈਲ ਨੰਬਰ',
+    'lblPassword': 'ਪਾਸਵਰਡ',
+    'loginBtn': 'ਲੌਗਇਨ ਕਰੋ',
+    'loginFooter': 'ਡੈਮੋ: ਕੋਈ ਵੀ ਨੰਬਰ + ਕੋਈ ਵੀ ਪਾਸਵਰਡ',
+    'h-sub': 'ਅਵਾਜ਼-ਆਧਾਰਿਤ AI ਡੇਅਰੀ ਸਹਾਇਕ',
+    'logoutBtn': 'ਲੌਗਆਊਟ',
+    'nav-home': '🏠 ਹੋਮ',
+    'nav-health': '🩺 ਸਿਹਤ',
+    'nav-breed': '🌱 ਪ੍ਰਜਨਨ',
+    'nav-feed': '🌾 ਚਾਰਾ',
+    'nav-herd': '📋 ਮੇਰਾ ਝੁੰਡ',
+    'hero-title': '🐄 ਗਊ ਸਾਰਥੀ ਵਿੱਚ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ',
+    'hero-desc': 'ਤੁਹਾਡਾ AI-ਆਧਾਰਿਤ ਡੇਅਰੀ ਸਹਾਇਕ। ਆਪਣੀ ਭਾਸ਼ਾ ਵਿੱਚ ਬੋਲੋ, ਫੋਟੋ ਸਾਂਝੀ ਕਰੋ, ਅਤੇ ਪਸ਼ੂ ਸਿਹਤ, ਪ੍ਰਜਨਨ ਅਤੇ ਪੋਸ਼ਣ ਬਾਰੇ ਮਾਹਰ ਸਲਾਹ ਲਓ।',
+    'qa-title': 'ਤੁਰੰਤ AI ਸਲਾਹ',
+    'qa-label': 'ਆਪਣੇ ਪਸ਼ੂ ਦੀ ਸਮੱਸਿਆ ਆਪਣੇ ਸ਼ਬਦਾਂ ਵਿੱਚ ਦੱਸੋ',
+    'qa-animal': 'ਪਸ਼ੂ ਦੀ ਕਿਸਮ',
+    'qa-concern': 'ਮੁੱਖ ਚਿੰਤਾ',
+    'qa-btn': 'AI ਸਲਾਹ ਲਓ',
+    'ai-resp-title': 'AI ਸਲਾਹ',
+    'fg-title': 'ਮੁੱਖ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ',
+    'alerts-title': 'ਅੱਜ ਦੀਆਂ ਚੇਤਾਵਨੀਆਂ',
+    'fc1': 'ਪਸ਼ੂ ਸਿਹਤ ਨਿਗਰਾਨੀ',
+    'fc2': 'ਪ੍ਰਜਨਨ ਯੋਜਨਾਕਾਰ',
+    'fc3': 'ਚਾਰਾ-ਤੋਂ-ਉਪਜ ਮਾਰਗਦਰਸ਼ਨ',
+    'fc4': 'ਮੇਰਾ ਝੁੰਡ',
+    'fc5': 'ਮਾਸਟਾਈਟਿਸ ਸ਼ੁਰੂਆਤੀ ਖੋਜ',
+    'fc6': 'ਘੱਟ-ਕਾਰਬਨ ਡੇਅਰੀ ਸਲਾਹਕਾਰ',
+    'ht-title': 'ਪਸ਼ੂ ਸਿਹਤ ਅਤੇ ਸਰੀਰਕ ਸਥਿਤੀ ਦੀ ਨਿਗਰਾਨੀ',
+    'bt-title': 'ਉਪਜਾਊ ਸ਼ਕਤੀ ਅਤੇ ਗਰਭਧਾਰਨ ਯੋਜਨਾਕਾਰ',
+    'ft-title': 'ਚਾਰਾ-ਤੋਂ-ਉਪਜ ਮਾਰਗਦਰਸ਼ਨ ਅਤੇ ਪੋਸ਼ਣ ਸਲਾਹਕਾਰ',
+    'hrd-title': 'ਮੇਰੇ ਝੁੰਡ ਦੇ ਰਿਕਾਰਡ',
+    'btn-get-ai-advisory': '🤖 AI ਸਲਾਹ ਲਓ',
+    'btn-clear': '🗑️ ਸਾਫ਼ ਕਰੋ',
+    'btn-ai-health': '🤖 AI ਸਿਹਤ ਵਿਸ਼ਲੇਸ਼ਣ',
+    'btn-save-log': '💾 ਲੌਗ ਵਿੱਚ ਸੁਰੱਖਿਅਤ ਕਰੋ',
+    'btn-check-mastitis': '🔍 ਮਾਸਟਾਈਟਿਸ ਜੋਖਮ ਜਾਂਚੋ',
+    'btn-ai-breeding': '🤖 AI ਪ੍ਰਜਨਨ ਸਲਾਹ',
+    'btn-check-heat': '✅ ਗਰਮੀ ਦੇ ਸੰਕੇਤ ਜਾਂਚੋ',
+    'btn-save-insem': '💾 ਰਿਕਾਰਡ ਸੁਰੱਖਿਅਤ ਕਰੋ',
+    'btn-ai-feed': '🤖 AI ਚਾਰਾ ਸਿਫਾਰਿਸ਼',
+    'btn-predict-yield': '📊 ਦੁੱਧ ਉਤਪਾਦਨ ਪੂਰਵ-ਅਨੁਮਾਨ',
+    'btn-carbon': '🌱 ਘੱਟ-ਕਾਰਬਨ ਸਲਾਹ ਲਓ',
+    'btn-add-animal': '➕ ਪਸ਼ੂ ਜੋੜੋ',
+    'btn-save-animal': '💾 ਪਸ਼ੂ ਸੁਰੱਖਿਅਤ ਕਰੋ',
+    'btn-cancel': 'ਰੱਦ ਕਰੋ',
+    'btn-ai-summary': '🤖 AI ਪੂਰਾ ਸਿਹਤ ਸਾਰਾਂਸ਼',
+    'btn-listen': '🔊 ਸਲਾਹ ਸੁਣੋ',
+    'lbl-select-animal': 'ਪਸ਼ੂ ਚੁਣੋ',
+    'lbl-obs-date': 'ਨਿਰੀਖਣ ਦੀ ਮਿਤੀ',
+    'lbl-milk-yield': 'ਅੱਜ ਦਾ ਦੁੱਧ ਉਤਪਾਦਨ (ਲੀਟਰ)',
+    'lbl-body-temp': 'ਸਰੀਰ ਦਾ ਤਾਪਮਾਨ (°F)',
+    'lbl-bcs': 'ਸਰੀਰਕ ਸਥਿਤੀ ਸਕੋਰ (1–5)',
+    'lbl-appetite': 'ਭੁੱਖ',
+    'lbl-symptoms': 'ਦਿਖਾਈ ਦੇਣ ਵਾਲੇ ਲੱਛਣ (ਸਭ ਚੁਣੋ)',
+    'lbl-add-notes': 'ਵਾਧੂ ਨੋਟਸ',
+    'lbl-upload-health': '📷 ਪ੍ਰਭਾਵਿਤ ਥਾਂ ਦੀ ਫੋਟੋ ਅਪਲੋਡ ਕਰੋ',
+    'lbl-breed-animal': 'ਪਸ਼ੂ ਚੁਣੋ',
+    'lbl-last-heat': 'ਪਿਛਲੀ ਗਰਮੀ ਦੀ ਮਿਤੀ',
+    'lbl-last-calving': 'ਪਿਛਲੇ ਜਣੇਪੇ ਦੀ ਮਿਤੀ',
+    'lbl-insem-animal': 'ਪਸ਼ੂ',
+    'lbl-insem-date': 'ਗਰਭਧਾਰਨ ਦੀ ਮਿਤੀ',
+    'lbl-bull-type': 'ਸਾਂਡ / ਵੀਰਜ ਕਿਸਮ',
+    'lbl-done-by': 'ਕਿਸ ਨੇ ਕੀਤਾ',
+    'lbl-feed-animal': 'ਪਸ਼ੂ ਕਿਸਮ ਅਤੇ ਨਸਲ',
+    'lbl-body-weight': 'ਸਰੀਰ ਦਾ ਭਾਰ (ਕਿਗ੍ਰਾ)',
+    'lbl-feed-milk': 'ਮੌਜੂਦਾ ਰੋਜ਼ਾਨਾ ਦੁੱਧ ਉਤਪਾਦਨ (ਲੀਟਰ)',
+    'lbl-lact-stage': 'ਦੁੱਧ ਚੁਆਈ ਦੀ ਅਵਸਥਾ',
+    'lbl-feed-resources': 'ਉਪਲਬਧ ਸਥਾਨਕ ਚਾਰਾ ਸਰੋਤ',
+    'lbl-pred-breed': 'ਨਸਲ',
+    'lbl-pred-age': 'ਉਮਰ (ਸਾਲ)',
+    'lbl-pred-parity': 'ਪੈਰਿਟੀ (ਦੁੱਧ ਚੁਆਈ #)',
+    'lbl-pred-bcs': 'BCS',
+    'lbl-herd-size': 'ਝੁੰਡ ਦਾ ਆਕਾਰ',
+    'lbl-manure': 'ਖਾਦ ਪ੍ਰਬੰਧਨ',
+    'lbl-carbon-milk': 'ਔਸਤ ਰੋਜ਼ਾਨਾ ਦੁੱਧ / ਪਸ਼ੂ (ਲੀਟਰ)',
+    'lbl-new-name': 'ਪਸ਼ੂ ਦਾ ਨਾਮ / ਟੈਗ ID',
+    'lbl-species': 'ਜਾਤੀ',
+    'lbl-breed-input': 'ਨਸਲ',
+    'lbl-dob': 'ਜਨਮ ਮਿਤੀ',
+    'lbl-purchase-date': 'ਖਰੀਦ / ਜਣੇਪੇ ਦੀ ਮਿਤੀ',
+    'lbl-new-bcs': 'ਮੌਜੂਦਾ BCS',
+    'card-log-health': '📝 ਸਿਹਤ ਨਿਰੀਖਣ ਦਰਜ ਕਰੋ',
+    'card-mastitis': '🔬 ਮਾਸਟਾਈਟਿਸ ਜੋਖਮ ਜਾਂਚਕਰਤਾ',
+    'card-health-log': '📅 ਸਿਹਤ ਲੌਗ',
+    'card-cycle': '📅 ਗਰਮੀ ਚੱਕਰ ਟ੍ਰੈਕਰ',
+    'card-cycle-status': '⏱️ ਚੱਕਰ ਦੀ ਸਥਿਤੀ',
+    'card-heat-checklist': '📋 ਗਰਮੀ ਸੰਕੇਤ ਚੈੱਕਲਿਸਟ',
+    'card-insem': '💉 ਗਰਭਧਾਰਨ ਰਿਕਾਰਡ',
+    'card-feed-rec': '🌿 ਚਾਰਾ ਸਿਫਾਰਿਸ਼ ਲਓ (ICAR ਮਾਪਦੰਡ)',
+    'card-yield-pred': '📈 ਦੁੱਧ ਉਤਪਾਦਨ ਪੂਰਵ-ਅਨੁਮਾਨ',
+    'card-carbon': '🌍 ਘੱਟ-ਕਾਰਬਨ ਡੇਅਰੀ ਸਲਾਹਕਾਰ',
+    'card-add-animal': '➕ ਨਵਾਂ ਪਸ਼ੂ ਰਜਿਸਟਰ ਕਰੋ',
+    'card-herd-overview': '📊 ਝੁੰਡ ਦਾ ਅਵਲੋਕਨ',
+    'ph-problem': 'ਜਿਵੇਂ: ਮੇਰੀ ਗਾਂ ਘੱਟ ਖਾ ਰਹੀ ਹੈ ਅਤੇ ਦੁੱਧ ਘੱਟ ਹੋ ਗਿਆ ਹੈ...',
+    'ph-milk': 'ਜਿਵੇਂ: 8.5',
+    'ph-temp': 'ਸਾਧਾਰਨ: 101–102.5',
+    'ph-days-calving': 'ਜਿਵੇਂ: 45',
+    'ph-body-weight': 'ਜਿਵੇਂ: 400',
+    'ph-feed-milk': 'ਜਿਵੇਂ: 10',
+    'ph-pred-age': 'ਜਿਵੇਂ: 4',
+    'ph-pred-parity': 'ਜਿਵੇਂ: 2',
+    'ph-herd-size': 'ਜਿਵੇਂ: 5',
+    'ph-carbon-milk': 'ਜਿਵੇਂ: 8',
+    'ph-new-name': 'ਜਿਵੇਂ: ਲਕਸ਼ਮੀ ਜਾਂ #005',
+    'ph-new-breed': 'ਜਿਵੇਂ: HF Cross',
+    'ph-bull-type': 'ਜਿਵੇਂ: HF Cross, Jersey...',
+    'ph-notes': 'ਕੋਈ ਹੋਰ ਟਿੱਪਣੀ...',
+    'lbl-udder-condition': 'ਥਣ ਦੀ ਸਥਿਤੀ',
+    'lbl-milk-appearance': 'ਦੁੱਧ ਦੀ ਦਿੱਖ',
+    'lbl-days-calving': 'ਪਿਛਲੇ ਜਣੇਪੇ ਤੋਂ ਬਾਅਦ ਦੇ ਦਿਨ',
+    'footer-line1': '🐄 ਗਊ ਸਾਰਥੀ – ਅਵਾਜ਼-ਆਧਾਰਿਤ AI ਡੇਅਰੀ ਫੈਸਲਾ ਸਹਾਇਤਾ | Claude AI ਦੁਆਰਾ ਸੰਚਾਲਿਤ | ICAR ਅਤੇ NDDB ਅਨੁਕੂਲਿਤ | ਟੀਮ M-Square',
+    'footer-line2': 'ਮਹਿਕਪ੍ਰੀਤ ਕੌਰ ਅਤੇ ਮਿਦੁਸ਼ੀ ਮਾਹੇਸ਼ਵਰੀ | ਇਹ ਸਿਰਫ਼ ਇੱਕ ਸਲਾਹਕਾਰ ਸਾਧਨ ਹੈ – ਡਾਕਟਰੀ ਫੈਸਲਿਆਂ ਲਈ ਹਮੇਸ਼ਾ ਪਸ਼ੂ ਚਿਕਿਤਸਕ ਨਾਲ ਸਲਾਹ ਕਰੋ।',
+  }
+};
+
+// ─── DROPDOWN OPTIONS ─────────────────────────────────
+const OPTS = {
+  // id -> { en: [...], hi: [...], pa: [...] }
+  animalType: {
+    en: ['🐄 Cow', '🐃 Buffalo', '🐮 Calf'],
+    hi: ['🐄 गाय', '🐃 भैंस', '🐮 बछड़ा'],
+    pa: ['🐄 ਗਾਂ', '🐃 ਮੱਝ', '🐮 ਵੱਛਾ']
+  },
+  concernType: {
+    en: ['General Health','Milk Production Drop','Udder / Mastitis','Heat / Breeding','Feeding / Nutrition','Injury / Lameness','Respiratory / Fever','Digestion / Bloating'],
+    hi: ['सामान्य स्वास्थ्य','दूध उत्पादन में कमी','थन / मास्टिटिस','गर्मी / प्रजनन','चारा / पोषण','चोट / लंगड़ापन','श्वसन / बुखार','पाचन / पेट फूलना'],
+    pa: ['ਆਮ ਸਿਹਤ','ਦੁੱਧ ਉਤਪਾਦਨ ਵਿੱਚ ਕਮੀ','ਥਣ / ਮਾਸਟਾਈਟਿਸ','ਗਰਮੀ / ਪ੍ਰਜਨਨ','ਚਾਰਾ / ਪੋਸ਼ਣ','ਸੱਟ / ਲੰਗੜਾਪਣ','ਸਾਹ / ਬੁਖਾਰ','ਪਾਚਨ / ਪੇਟ ਫੁੱਲਣਾ']
+  },
+  healthAnimal: {
+    en: ['Gauri – Cow #1','Rani – Cow #2','Kali – Buffalo #1','+ Add New Animal'],
+    hi: ['ਗੌਰੀ – ਗਾਂ #1','ਰਾਣੀ – ਗਾਂ #2','ਕਾਲੀ – ਮੱਝ #1','+ ਨਵਾਂ ਪਸ਼ੂ ਜੋੜੋ'],
+    pa: ['ਗੌਰੀ – ਗਾਂ #1','ਰਾਣੀ – ਗਾਂ #2','ਕਾਲੀ – ਮੱਝ #1','+ ਨਵਾਂ ਪਸ਼ੂ ਜੋੜੋ']
+  },
+  bcs: {
+    en: ['1 – Very Thin','2 – Thin','3 – Ideal','4 – Fat','5 – Very Fat'],
+    hi: ['1 – बहुत पतला','2 – पतला','3 – आदर्श','4 – मोटा','5 – बहुत मोटा'],
+    pa: ['1 – ਬਹੁਤ ਪਤਲਾ','2 – ਪਤਲਾ','3 – ਆਦਰਸ਼','4 – ਮੋਟਾ','5 – ਬਹੁਤ ਮੋਟਾ']
+  },
+  appetite: {
+    en: ['Normal','Reduced','Not Eating'],
+    hi: ['सामान्य','कम','नहीं खा रहा'],
+    pa: ['ਸਾਧਾਰਨ','ਘੱਟ','ਨਹੀਂ ਖਾ ਰਿਹਾ']
+  },
+  mastitisAnimal: {
+    en: ['Gauri – Cow #1','Rani – Cow #2','Kali – Buffalo #1'],
+    hi: ['गौरी – गाय #1','रानी – गाय #2','काली – भैंस #1'],
+    pa: ['ਗੌਰੀ – ਗਾਂ #1','ਰਾਣੀ – ਗਾਂ #2','ਕਾਲੀ – ਮੱਝ #1']
+  },
+  udderCondition: {
+    en: ['Normal – Soft, Even','Slightly Hard / One Quarter','Very Hard / Hot / Painful','Asymmetric Quarters'],
+    hi: ['सामान्य – मुलायम, समान','थोड़ा कठोर / एक तिमाही','बहुत कठोर / गर्म / दर्दनाक','असमान तिमाहियां'],
+    pa: ['ਸਾਧਾਰਨ – ਨਰਮ, ਸਮਾਨ','ਥੋੜਾ ਕਠੋਰ / ਇੱਕ ਤਿਮਾਹੀ','ਬਹੁਤ ਕਠੋਰ / ਗਰਮ / ਦਰਦਨਾਕ','ਅਸਮਾਨ ਤਿਮਾਹੀਆਂ']
+  },
+  milkAppearance: {
+    en: ['Normal White / Creamy','Watery / Thin','Flakes / Clots','Bloody / Pink','Yellowish / Green'],
+    hi: ['सामान्य सफेद / मलाईदार','पतला / पानी जैसा','ढेले / थक्के','खूनी / गुलाबी','पीलापन / हरापन'],
+    pa: ['ਸਾਧਾਰਨ ਚਿੱਟਾ / ਕਰੀਮੀ','ਪਤਲਾ / ਪਾਣੀ ਵਰਗਾ','ਟੁਕੜੇ / ਗੁੱਠੇ','ਖੂਨੀ / ਗੁਲਾਬੀ','ਪੀਲਾਪਣ / ਹਰਾਪਣ']
+  },
+  breedAnimal: {
+    en: ['Gauri – Cow #1','Rani – Cow #2','Kali – Buffalo #1'],
+    hi: ['गौरी – गाय #1','रानी – गाय #2','काली – भैंस #1'],
+    pa: ['ਗੌਰੀ – ਗਾਂ #1','ਰਾਣੀ – ਗਾਂ #2','ਕਾਲੀ – ਮੱਝ #1']
+  },
+  aiAnimal: {
+    en: ['Gauri – Cow #1','Rani – Cow #2','Kali – Buffalo #1'],
+    hi: ['गौरी – गाय #1','रानी – गाय #2','काली – भैंस #1'],
+    pa: ['ਗੌਰੀ – ਗਾਂ #1','ਰਾਣੀ – ਗਾਂ #2','ਕਾਲੀ – ਮੱਝ #1']
+  },
+  aiBy: {
+    en: ['Government AI Center','Private Vet','Co-operative'],
+    hi: ['सरकारी AI केंद्र','निजी पशु चिकित्सक','सहकारी संस्था'],
+    pa: ['ਸਰਕਾਰੀ AI ਕੇਂਦਰ','ਪ੍ਰਾਈਵੇਟ ਪਸ਼ੂ ਚਿਕਿਤਸਕ','ਸਹਿਕਾਰੀ ਸੰਸਥਾ']
+  },
+  feedAnimalType: {
+    en: ['HF Cross Cow','Jersey Cow','Sahiwal (Indigenous)','Murrah Buffalo','Jaffarabadi Buffalo'],
+    hi: ['HF क्रॉस गाय','जर्सी गाय','साहीवाल (देशी)','मुर्राह भैंस','जाफराबादी भैंस'],
+    pa: ['HF ਕ੍ਰਾਸ ਗਾਂ','ਜਰਸੀ ਗਾਂ','ਸਾਹੀਵਾਲ (ਦੇਸੀ)','ਮੁੱਰਾਹ ਮੱਝ','ਜਾਫਰਾਬਾਦੀ ਮੱਝ']
+  },
+  lactStage: {
+    en: ['Early (0–3 months)','Mid (3–6 months)','Late (6+ months)','Dry Period'],
+    hi: ['शुरुआती (0–3 महीने)','मध्य (3–6 महीने)','देर (6+ महीने)','सूखा काल'],
+    pa: ['ਸ਼ੁਰੂਆਤੀ (0–3 ਮਹੀਨੇ)','ਮੱਧ (3–6 ਮਹੀਨੇ)','ਦੇਰ (6+ ਮਹੀਨੇ)','ਸੁੱਕਾ ਕਾਲ']
+  },
+  predBreed: {
+    en: ['HF Cross','Jersey','Sahiwal','Murrah Buffalo'],
+    hi: ['HF क्रॉस','जर्सी','साहीवाल','मुर्राह भैंस'],
+    pa: ['HF ਕ੍ਰਾਸ','ਜਰਸੀ','ਸਾਹੀਵਾਲ','ਮੁੱਰਾਹ ਮੱਝ']
+  },
+  predBCS: {
+    en: ['2 – Thin','3 – Ideal','4 – Fat'],
+    hi: ['2 – पतला','3 – आदर्श','4 – मोटा'],
+    pa: ['2 – ਪਤਲਾ','3 – ਆਦਰਸ਼','4 – ਮੋਟਾ']
+  },
+  manureMethod: {
+    en: ['Open dumping','Composting','Biogas Plant','Direct field use'],
+    hi: ['खुला डम्पिंग','कम्पोस्टिंग','बायोगैस प्लांट','सीधे खेत में उपयोग'],
+    pa: ['ਖੁੱਲ੍ਹੀ ਡੰਪਿੰਗ','ਕੰਪੋਸਟਿੰਗ','ਬਾਇਓਗੈਸ ਪਲਾਂਟ','ਸਿੱਧੀ ਖੇਤ ਵਰਤੋਂ']
+  },
+  newSpecies: {
+    en: ['Cow','Buffalo','Calf'],
+    hi: ['गाय','भैंस','बछड़ा'],
+    pa: ['ਗਾਂ','ਮੱਝ','ਵੱਛਾ']
+  }
+};
+
+// ─── SYMPTOM LABELS ──────────────────────────────────
+const SYMPTOMS = {
+  en: ['Udder Swelling','Limping / Lameness','Loose Stool / Diarrhea','Nasal Discharge','Restlessness','Bloating','Lethargy / Dull Eyes','Abnormal Milk (watery/bloody)'],
+  hi: ['थन में सूजन','लंगड़ापन','पतला मल / दस्त','नाक से स्राव','बेचैनी','पेट फूलना','सुस्ती / सुस्त आंखें','असामान्य दूध (पानी जैसा/खूनी)'],
+  pa: ['ਥਣ ਵਿੱਚ ਸੋਜ','ਲੰਗੜਾਪਣ','ਪਤਲਾ ਮਲ / ਦਸਤ','ਨੱਕ ਤੋਂ ਨਿਕਾਸ','ਬੇਚੈਨੀ','ਪੇਟ ਫੁੱਲਣਾ','ਸੁਸਤੀ / ਧੁੰਦਲੀਆਂ ਅੱਖਾਂ','ਅਸਾਧਾਰਨ ਦੁੱਧ (ਪਾਣੀ ਵਰਗਾ/ਖੂਨੀ)']
+};
+
+// ─── HEAT SIGN LABELS ────────────────────────────────
+const HEAT_SIGNS = {
+  en: ['Mounting other animals or being mounted','Clear mucus discharge from vulva','Restlessness / increased activity','Swollen or reddened vulva','Reduced feed intake','Milk drop (temporary)'],
+  hi: ['दूसरे पशुओं पर चढ़ना या चढ़वाना','योनि से साफ म्यूकस स्राव','बेचैनी / बढ़ी हुई गतिविधि','सूजी हुई या लाल योनि','चारे की कम खपत','दूध में अस्थायी गिरावट'],
+  pa: ['ਦੂਜੇ ਪਸ਼ੂਆਂ ਉੱਤੇ ਚੜ੍ਹਨਾ ਜਾਂ ਚੜ੍ਹਵਾਉਣਾ','ਯੋਨੀ ਤੋਂ ਸਾਫ਼ ਬਲਗਮ ਨਿਕਾਸ','ਬੇਚੈਨੀ / ਵੱਧੀ ਗਤੀਵਿਧੀ','ਸੁੱਜੀ ਜਾਂ ਲਾਲ ਯੋਨੀ','ਚਾਰੇ ਦੀ ਘੱਟ ਖਪਤ','ਦੁੱਧ ਵਿੱਚ ਅਸਥਾਈ ਗਿਰਾਵਟ']
+};
+
+// ─── FEED CHECKBOXES ─────────────────────────────────
+const FEED_ITEMS = {
+  en: ['Green Fodder','Dry Straw','Cottonseed Cake','Maize Silage','Grain Mix / Concentrate','Mineral Mixture'],
+  hi: ['हरा चारा','सूखा भूसा','कपास बीज खली','मक्का साइलेज','अनाज मिश्रण / कॉन्सेंट्रेट','खनिज मिश्रण'],
+  pa: ['ਹਰਾ ਚਾਰਾ','ਸੁੱਕਾ ਭੂਸਾ','ਕਪਾਹ ਬੀਜ ਖਲੀ','ਮੱਕੀ ਸਾਈਲੇਜ','ਅਨਾਜ ਮਿਸ਼ਰਣ / ਕਾਨਸੈਂਟ੍ਰੇਟ','ਖਣਿਜ ਮਿਸ਼ਰਣ']
+};
+const FEED_IDS = ['f_green','f_dry','f_cotton','f_maize','f_grain','f_mineral'];
+
+// ─── SET LANGUAGE ────────────────────────────────────
+function setLang(lang, btn) {
+  currentLang = lang;
+  const map = T[lang] || T['en'];
+
+  // 1. Update all text-content elements by ID
+  Object.keys(map).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    // Buttons and inputs use textContent; inputs use value differently
+    if (el.tagName === 'INPUT' && el.type !== 'button') {
+      // update placeholder only
+    } else {
+      el.textContent = map[id];
+    }
+  });
+
+  // 2. Update all elements with data-i18n attribute
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (map[key]) el.textContent = map[key];
+  });
+
+  // 3. Update placeholders
+  const phMap = {
+    'problemText': 'ph-problem',
+    'milkYield': 'ph-milk',
+    'bodyTemp': 'ph-temp',
+    'daysCalving': 'ph-days-calving',
+    'bodyWeight': 'ph-body-weight',
+    'feedMilkYield': 'ph-feed-milk',
+    'predAge': 'ph-pred-age',
+    'predParity': 'ph-pred-parity',
+    'herdSize': 'ph-herd-size',
+    'carbonMilk': 'ph-carbon-milk',
+    'newName': 'ph-new-name',
+    'newBreed': 'ph-new-breed',
+    'aiType': 'ph-bull-type',
+    'healthNotes': 'ph-notes'
+  };
+  Object.keys(phMap).forEach(inputId => {
+    const el = document.getElementById(inputId);
+    if (el && map[phMap[inputId]]) el.placeholder = map[phMap[inputId]];
+  });
+
+  // 4. Update dropdown options
+  Object.keys(OPTS).forEach(selectId => {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const opts = OPTS[selectId][lang] || OPTS[selectId]['en'];
+    const vals = sel.querySelectorAll('option');
+    opts.forEach((txt, i) => { if (vals[i]) vals[i].textContent = txt; });
+  });
+
+  // 5. Update symptom checkboxes
+  const sympGrid = document.getElementById('symptomsGrid');
+  if (sympGrid) {
+    const labels = sympGrid.querySelectorAll('label');
+    const syms = SYMPTOMS[lang] || SYMPTOMS['en'];
+    labels.forEach((lbl, i) => {
+      if (syms[i]) {
+        const cb = lbl.querySelector('input');
+        lbl.textContent = '';
+        if (cb) lbl.appendChild(cb);
+        lbl.appendChild(document.createTextNode(' ' + syms[i]));
+      }
+    });
+  }
+
+  // 6. Update heat sign checkboxes
+  const heatGrid = document.getElementById('heatSigns');
+  if (heatGrid) {
+    const labels = heatGrid.querySelectorAll('label');
+    const signs = HEAT_SIGNS[lang] || HEAT_SIGNS['en'];
+    labels.forEach((lbl, i) => {
+      if (signs[i]) {
+        const cb = lbl.querySelector('input');
+        lbl.textContent = '';
+        if (cb) lbl.appendChild(cb);
+        lbl.appendChild(document.createTextNode(' ' + signs[i]));
+      }
+    });
+  }
+
+  // 7. Update feed checkboxes
+  FEED_IDS.forEach((id, i) => {
+    const cb = document.getElementById(id);
+    if (!cb) return;
+    const lbl = cb.closest('label') || cb.parentElement;
+    if (lbl) {
+      const items = FEED_ITEMS[lang] || FEED_ITEMS['en'];
+      lbl.textContent = '';
+      lbl.appendChild(cb);
+      lbl.appendChild(document.createTextNode(' ' + items[i]));
+    }
+  });
+
+  // 8. Update card titles via data-i18n
+  const cardTitleMap = {
+    'card-log-health': 'card-log-health',
+    'card-mastitis': 'card-mastitis',
+    'card-health-log': 'card-health-log',
+    'card-cycle': 'card-cycle',
+    'card-cycle-status': 'card-cycle-status',
+    'card-heat-checklist': 'card-heat-checklist',
+    'card-insem': 'card-insem',
+    'card-feed-rec': 'card-feed-rec',
+    'card-yield-pred': 'card-yield-pred',
+    'card-carbon': 'card-carbon',
+    'card-add-animal': 'card-add-animal',
+    'card-herd-overview': 'card-herd-overview'
+  };
+  Object.keys(cardTitleMap).forEach(key => {
+    const el = document.getElementById(key);
+    if (el && map[cardTitleMap[key]]) el.textContent = map[cardTitleMap[key]];
+  });
+
+  // 9. Update labels by data-i18n-label
+  document.querySelectorAll('[data-i18n-label]').forEach(el => {
+    const key = el.dataset.i18nLabel;
+    if (map[key]) el.textContent = map[key];
+  });
+
+  // 10. Sync header lang-select dropdown
+  const sel = document.getElementById('langSelect');
+  if (sel) sel.value = lang;
+
+  // 11. Sync login lang tabs
+  const tabs = document.getElementById('loginLangTabs');
+  if (tabs) {
+    tabs.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    const idx = ['en','hi','pa'].indexOf(lang);
+    if (tabs.children[idx]) tabs.children[idx].classList.add('active');
+  }
+}
+
+// ─── LOGIN / LOGOUT ───────────────────────────────────
+function doLogin() {
+  const mob = document.getElementById('loginMobile').value.trim();
+  const pwd = document.getElementById('loginPassword').value.trim();
+  const err = document.getElementById('loginError');
+
+  if (!mob || !pwd) {
+    const msgs = { en: "Please enter mobile number and password.", hi: "कृपया मोबाइल नंबर और पासवर्ड दर्ज करें।", pa: "ਕਿਰਪਾ ਕਰਕੇ ਮੋਬਾਈਲ ਨੰਬਰ ਅਤੇ ਪਾਸਵਰਡ ਦਾਖਲ ਕਰੋ।" };
+    err.textContent = msgs[currentLang] || msgs.en;
+    err.style.display = 'block';
+    return;
+  }
+  err.style.display = 'none';
+
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+  setLang(currentLang);
+}
+
+function doLogout() {
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('loginMobile').value = '';
+  document.getElementById('loginPassword').value = '';
+  setLang(currentLang);
+}
+
+function showSignup() {
+  document.getElementById("signupForm").style.display = "block";
+}
+
+function registerUser() {
+  const name = document.getElementById("signupName").value;
+  const mobile = document.getElementById("signupMobile").value;
+  const password = document.getElementById("signupPassword").value;
+
+  if (!name || !mobile || !password) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  alert("Account created successfully!");
+
+  document.getElementById("signupForm").style.display = "none";
+}
+
+// ─── TAB SWITCHING ────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelectorAll('[data-tab]').forEach(b => { if (b.dataset.tab === name) b.classList.add('active'); });
+  // Also update nav buttons
+  document.querySelectorAll('[id^=nav-]').forEach(b => b.classList.remove('active'));
+  const nb = document.getElementById('nav-' + name);
+  if (nb) nb.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+document.querySelectorAll('[id^=nav-]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[id^=nav-]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ─── TOAST ───────────────────────────────────────────
+function showToast(msg, duration = 2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ─── IMAGE PREVIEW ────────────────────────────────────
+function previewImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    imageBase64 = e.target.result.split(',')[1];
+    const preview = document.getElementById('imagePreview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    showToast('📷 Photo loaded! AI will analyze it.');
+  };
+  reader.readAsDataURL(file);
+}
+function previewHealthImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    healthImageBase64 = e.target.result.split(',')[1];
+    const preview = document.getElementById('healthImagePreview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ─── VOICE INPUT ─────────────────────────────────────
+function toggleVoice() {
+  const btn = document.getElementById('voiceBtn');
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    const langMap = {en:'en-IN', hi:'hi-IN', pa:'pa-IN'};
+    const samples = {
+      en: 'My cow is eating less and milk production has reduced.',
+      hi: 'मेरी गाय कम खा रही है और दूध कम दे रही है।',
+      pa: 'ਮੇਰੀ ਗਾਂ ਘੱਟ ਖਾ ਰਹੀ ਹੈ ਅਤੇ ਦੁੱਧ ਘੱਟ ਦੇ ਰਹੀ ਹੈ।'
+    };
+    document.getElementById('problemText').value = samples[currentLang] || samples.en;
+    showToast('🎤 Voice simulated (demo)');
+    return;
+  }
+  if (isRecording) {
+    speechRec && speechRec.stop();
+    isRecording = false;
+    btn.classList.remove('recording');
+    btn.textContent = '🎤';
+    return;
+  }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  speechRec = new SpeechRecognition();
+  const langMap = {en:'en-IN', hi:'hi-IN', pa:'pa-IN'};
+  speechRec.lang = langMap[currentLang] || 'en-IN';
+  speechRec.interimResults = false;
+  speechRec.onresult = e => {
+    document.getElementById('problemText').value = e.results[0][0].transcript;
+    showToast('✅ Voice recorded!');
+  };
+  speechRec.onerror = () => showToast('❌ Voice error – try typing');
+  speechRec.onend = () => { isRecording = false; btn.classList.remove('recording'); btn.textContent = '🎤'; };
+  speechRec.start();
+  isRecording = true;
+  btn.classList.add('recording');
+  btn.textContent = '⏹️';
+  showToast('🎤 Recording… speak now');
+}
+
+// ─── SPEAK TEXT ──────────────────────────────────────
+function speakText(text) {
+  if (!text || !window.speechSynthesis) { showToast('🔇 Text-to-speech not supported'); return; }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text.substring(0, 800));
+  const langMap = {en:'en-IN', hi:'hi-IN', pa:'pa-IN'};
+  utter.lang = langMap[currentLang] || 'en-IN';
+  utter.rate = 0.88;
+  window.speechSynthesis.speak(utter);
+  showToast('🔊 Speaking advisory...');
+}
+function speakResponse() {
+  speakText(document.getElementById('aiResponseBody').innerText);
+}
+
+// ─── CLEAR ───────────────────────────────────────────
+function clearAdvice() {
+  document.getElementById('problemText').value = '';
+  document.getElementById('aiResponse').classList.remove('visible');
+  document.getElementById('imagePreview').style.display = 'none';
+  imageBase64 = null;
+}
+
+// ─── API CALL HELPER ─────────────────────────────────
+async function callClaude(systemPrompt, userMessage, imageData) {
+  const msgs = [];
+  if (imageData) {
+    msgs.push({ role: 'user', content: [
+      { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imageData } },
+      { type: 'text', text: userMessage }
+    ]});
+  } else {
+    msgs.push({ role: 'user', content: userMessage });
+  }
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: msgs
+    })
+  });
+  if (!resp.ok) throw new Error('API error ' + resp.status);
+  const data = await resp.json();
+  return data.content.map(c => c.text || '').join('');
+}
+
+function showLoading(elId) {
+  const el = document.getElementById(elId);
+  el.innerHTML = '<div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+}
+
+// ─── MAIN ADVISORY ────────────────────────────────────
+async function getAIAdvice() {
+  const problem = document.getElementById('problemText').value.trim();
+  const animal  = document.getElementById('animalType').value;
+  const concern = document.getElementById('concernType').value;
+  if (!problem) { showToast('⚠️ Please describe the problem first'); return; }
+
+  const respEl = document.getElementById('aiResponse');
+  const bodyEl = document.getElementById('aiResponseBody');
+  respEl.classList.add('visible');
+  showLoading('aiResponseBody');
+
+  const langInstr = currentLang === 'hi' ? 'IMPORTANT: You must respond entirely in Hindi language.' : currentLang === 'pa' ? 'IMPORTANT: You must respond entirely in Punjabi (Gurmukhi script) language.' : 'Respond in English.';
+  const sys = `You are GAU SAARTHI, an expert AI dairy advisory assistant for small Indian dairy farmers. You have deep knowledge of:
+- ICAR guidelines for cattle and buffalo management
+- Common livestock diseases (mastitis, FMD, BQ, HS, bloat, milk fever, etc.)
+- Reproductive management and estrus detection
+- NDDB breeding standards
+- Affordable, locally available remedies and practices
+Always structure your response clearly with:
+1. 🔍 Possible Cause/Assessment
+2. ✅ Immediate Actions (simple, actionable)
+3. 🌿 Home/Preventive Care
+4. ⚠️ When to Call Vet
+5. 📅 Follow-up Reminder
+Be empathetic, practical, and use simple language. ${langInstr}`;
+
+  const imgNote = imageBase64 ? 'Also analyze the uploaded photo of the animal.' : '';
+  const prompt = `Animal: ${animal}. Main concern: ${concern}. Farmer says: "${problem}". ${imgNote} Please provide detailed, actionable dairy advisory.`;
+
+  try {
+    const result = await callClaude(sys, prompt, imageBase64);
+    bodyEl.innerHTML = result.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  } catch(e) {
+    bodyEl.innerHTML = getFallbackAdvice(concern, animal, problem);
+  }
+}
+
+// ─── HEALTH ANALYSIS ─────────────────────────────────
+async function analyzeHealth() {
+  const animal   = document.getElementById('healthAnimal').value;
+  const milk     = document.getElementById('milkYield').value;
+  const temp     = document.getElementById('bodyTemp').value;
+  const bcs      = document.getElementById('bcs').value;
+  const appetite = document.getElementById('appetite').value;
+  const notes    = document.getElementById('healthNotes').value;
+  const symptoms = Array.from(document.querySelectorAll('#symptomsGrid input:checked')).map(c => c.value);
+
+  const respEl = document.getElementById('healthAIResponse');
+  const bodyEl = document.getElementById('healthAIResponseBody');
+  respEl.classList.add('visible');
+  showLoading('healthAIResponseBody');
+
+  const langInstr = currentLang === 'hi' ? 'IMPORTANT: You must respond entirely in Hindi language.' : currentLang === 'pa' ? 'IMPORTANT: You must respond entirely in Punjabi (Gurmukhi script) language.' : 'Respond in English.';
+  const sys = `You are a veterinary advisory AI for GAU SAARTHI, an Indian dairy farmer support system. Analyze animal health data and provide ICAR-aligned guidance. Be specific, practical, and farmer-friendly. ${langInstr}`;
+  const imgNote = healthImageBase64 ? 'The farmer has also uploaded a photo of the animal/affected area – analyze it.' : '';
+  const prompt = `Health observation for: ${animal}
+Milk yield: ${milk || 'not given'} L
+Temperature: ${temp || 'not taken'} °F  
+Body Condition Score: ${bcs}/5
+Appetite: ${appetite}
+Symptoms observed: ${symptoms.length ? symptoms.join(', ') : 'none noted'}
+Additional notes: ${notes || 'none'}
+${imgNote}
+
+Provide:
+1. 🔍 Health Status Assessment
+2. 🚦 Risk Level (Low/Medium/High)
+3. ✅ Recommended Actions
+4. 🏥 Vet Consultation: Yes/No and Why
+5. 📅 Monitoring Plan`;
+
+  try {
+    const result = await callClaude(sys, prompt, healthImageBase64);
+    bodyEl.innerHTML = result.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    showToast('✅ Health analysis complete');
+  } catch(e) {
+    bodyEl.innerHTML = 'Unable to connect to AI. Check your internet and try again.<br><br>⚠️ Based on entered data: Temperature and BCS suggest ' + (parseFloat(temp||0)>103 ? '<strong>fever – consult vet urgently.</strong>' : 'continue monitoring.');
+  }
+}
+
+function logHealthEntry() {
+  const animal = document.getElementById('healthAnimal').value;
+  const milk   = document.getElementById('milkYield').value;
+  const temp   = document.getElementById('bodyTemp').value;
+  const date   = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const logHtml = `<div class="log-entry"><div class="log-date">${date} – ${animal}</div>Milk: ${milk||'?'}L | Temp: ${temp||'?'}°F | Status: Logged ✅</div>`;
+  document.getElementById('healthLog').insertAdjacentHTML('afterbegin', logHtml);
+  showToast('💾 Health entry saved!');
+}
+
+// ─── MASTITIS CHECK ───────────────────────────────────
+async function checkMastitis() {
+  const animal  = document.getElementById('mastitisAnimal').value;
+  const udder   = document.getElementById('udderCondition').value;
+  const milk    = document.getElementById('milkAppearance').value;
+  const days    = document.getElementById('daysCalving').value;
+
+  const respEl = document.getElementById('mastitisResponse');
+  const bodyEl = document.getElementById('mastitisBody');
+  respEl.classList.add('visible');
+  showLoading('mastitisBody');
+
+  const langInstr = currentLang === 'hi' ? 'IMPORTANT: You must respond entirely in Hindi language.' : currentLang === 'pa' ? 'IMPORTANT: You must respond entirely in Punjabi (Gurmukhi script) language.' : 'Respond in English.';
+  const sys = `You are a mastitis specialist AI for GAU SAARTHI. Assess mastitis risk for Indian dairy animals based on observable signs. Be specific about risk level, what it means financially (mention the ₹1,390 per lactation loss if relevant), and what to do. ${langInstr}`;
+  const prompt = `Mastitis risk assessment:
+Animal: ${animal}
+Udder condition: ${udder}
+Milk appearance: ${milk}
+Days since calving: ${days || 'unknown'}
+
+Provide:
+1. 🔬 Risk Level: Subclinical / Clinical / High Risk
+2. 💰 Estimated Financial Impact if untreated
+3. 🧪 CMT Test Recommendation
+4. ✅ Immediate Steps
+5. 🏥 Vet Urgency Level`;
+
+  try {
+    const result = await callClaude(sys, prompt);
+    bodyEl.innerHTML = result.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  } catch(e) {
+    const isHigh = udder === 'very_hard' || milk === 'bloody' || milk === 'flakes';
+    bodyEl.innerHTML = isHigh
+      ? '🚨 <strong>HIGH RISK</strong> – Consult vet immediately. Clinical mastitis signs detected. Do not delay treatment.'
+      : '⚠️ Moderate risk detected. Perform CMT test and monitor closely. Ensure clean milking practices.';
+  }
+}
+
+// ─── BREEDING ADVICE ─────────────────────────────────
+async function getBreedingAdvice() {
+  const animal  = document.getElementById('breedAnimal').value;
+  const lastHeat = document.getElementById('lastHeatDate').value;
+  const lastCalv = document.getElementById('lastCalvingDate').value;
+
+  const respEl = document.getElementById('breedingResponse');
+  const bodyEl = document.getElementById('breedingBody');
+  respEl.classList.add('visible');
+  showLoading('breedingBody');
+
+  const today = new Date();
+  let daysSinceHeat = '?';
+  if (lastHeat) {
+    daysSinceHeat = Math.floor((today - new Date(lastHeat)) / 86400000);
+  }
+
+  const langInstr = currentLang === 'hi' ? 'IMPORTANT: You must respond entirely in Hindi language.' : currentLang === 'pa' ? 'IMPORTANT: You must respond entirely in Punjabi (Gurmukhi script) language.' : 'Respond in English.';
+  const sys = `You are a reproductive management specialist AI for GAU SAARTHI, an Indian dairy farmer tool. Follow NDDB and ICAR guidelines. ${langInstr}`;
+  const prompt = `Breeding advisory for: ${animal}
+Last heat date: ${lastHeat || 'not recorded'} (${daysSinceHeat} days ago)
+Last calving: ${lastCalv || 'not recorded'}
+Today: ${today.toDateString()}
+
+Provide:
+1. 📅 Next Expected Heat Window
+2. 🎯 Optimal Insemination Timing (12–18 hours after heat onset)
+3. 🔍 Signs to Watch For
+4. 💉 AI vs Natural Service Recommendation
+5. ✅ Action Plan for This Week`;
+
+  try {
+    const result = await callClaude(sys, prompt);
+    bodyEl.innerHTML = result.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  } catch(e) {
+    const dsh = parseInt(daysSinceHeat);
+    bodyEl.innerHTML = isNaN(dsh)
+      ? '⚠️ Please enter the last heat date to get accurate predictions.'
+      : dsh >= 18 && dsh <= 23
+        ? '🔥 <strong>HEAT WINDOW NOW</strong> – Insemination recommended within next 6–12 hours for best conception rate.'
+        : `📅 Next heat expected around Day 21. ${dsh < 21 ? (21-dsh) + ' days remaining.' : 'Overdue – monitor closely.'}`;
+  }
+}
+
+function checkHeatSigns() {
+  const checked = document.querySelectorAll('#heatSigns input:checked').length;
+  if (checked >= 3) showToast('🔥 3+ heat signs detected! Prepare for insemination now.');
+  else if (checked >= 1) showToast('⚠️ ' + checked + ' heat sign(s) observed. Continue monitoring.');
+  else showToast('✅ No heat signs checked yet. Check again tomorrow.');
+}
+
+function updateCycleDisplay() {
+  const lastHeat = document.getElementById('lastHeatDate').value;
+  if (!lastHeat) return;
+  const days = Math.floor((new Date() - new Date(lastHeat)) / 86400000) % 21 || 0;
+  const pct = Math.min((days/21)*100, 100);
+  document.getElementById('cycleDaysText').textContent = `Day ${days} / 21`;
+  const fill = document.getElementById('cycleFill');
+  fill.style.width = pct + '%';
+  fill.className = 'cycle-fill ' + (days <= 10 ? 'green' : days <= 17 ? 'yellow' : 'red');
+}
+
+function logInsemination() {
+  const animal = document.getElementById('aiAnimal').value;
+  const date   = document.getElementById('aiDate').value;
+  const type   = document.getElementById('aiType').value || 'Not specified';
+  const by     = document.getElementById('aiBy').value;
+  if (!date) { showToast('⚠️ Please enter insemination date'); return; }
+  const pregCheck = new Date(new Date(date).getTime() + 30*86400000).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const html = `<div class="log-entry"><div class="log-date">${new Date(date).toLocaleDateString('en-IN')} – ${animal}</div>${type} | ${by} | Pregnancy check due: ${pregCheck}</div>`;
+  document.getElementById('aiLog').insertAdjacentHTML('afterbegin', html);
+  showToast('💾 Insemination record saved!');
+}
+
+// ─── FEED ADVICE ─────────────────────────────────────
+async function getFeedAdvice() {
+  const animalType = document.getElementById('feedAnimalType').value;
+  const weight     = document.getElementById('bodyWeight').value;
+  const milk       = document.getElementById('feedMilkYield').value;
+  const stage      = document.getElementById('lactStage').value;
+  const feeds = [];
+  if (document.getElementById('f_green').checked)   feeds.push('green fodder');
+  if (document.getElementById('f_dry').checked)     feeds.push('dry straw');
+  if (document.getElementById('f_cotton').checked)  feeds.push('cottonseed cake');
+  if (document.getElementById('f_maize').checked)   feeds.push('maize silage');
+  if (document.getElementById('f_grain').checked)   feeds.push('grain/concentrate mix');
+  if (document.getElementById('f_mineral').checked) feeds.push('mineral mixture');
+
+  const respEl = document.getElementById('feedAIResponse');
+  const bodyEl = document.getElementById('feedAIBody');
+  respEl.classList.add('visible');
+  showLoading('feedAIBody');
+
+  const langInstr = currentLang === 'hi' ? 'IMPORTANT: You must respond entirely in Hindi language.' : currentLang === 'pa' ? 'IMPORTANT: You must respond entirely in Punjabi (Gurmukhi script) language.' : 'Respond in English.';
+  const sys = `You are a livestock nutrition expert aligned with ICAR (Indian Council of Agricultural Research) feeding norms. Give practical, affordable, locally-sourced feed recommendations for Indian dairy farmers. Provide specific quantities in kg. ${langInstr}`;
+  const prompt = `Feed recommendation request:
+Animal: ${animalType}
+Body weight: ${weight || 'unknown'} kg
+Daily milk yield: ${milk || 'unknown'} L
+Lactation stage: ${stage}
+Available feed resources: ${feeds.join(', ') || 'not specified'}
+
+Provide ICAR-aligned daily feeding plan:
+1. 🌿 Green Fodder (kg/day)
+2. 🌾 Dry Fodder (kg/day)
+3. 🌰 Concentrate Mix (kg/day) – quantity by milk yield
+4. 💊 Mineral/Salt supplement
+5. 💧 Water requirement
+6. ⚠️ Nutritional Gaps to address
+7. 💰 Estimated daily feed cost (₹)`;
+
+  try {
+    const result = await callClaude(sys, prompt);
+    bodyEl.innerHTML = result.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  } catch(e) {
+    const m = parseFloat(milk) || 8;
+    bodyEl.innerHTML = `<strong>ICAR Feeding Guidelines (${animalType}):</strong><br><br>
+🌿 Green Fodder: ${Math.round(m*2.5 + 10)} kg/day<br>
+🌾 Dry Straw: 4–5 kg/day<br>
+🌰 Concentrate: ${(1 + m/2.5).toFixed(1)} kg/day (1 kg per 2.5L milk above maintenance)<br>
+💊 Mineral Mixture: 50g/day + Salt 30g/day<br>
+💧 Water: 35–50 litres/day (more in summer)<br><br>
+⚠️ Ensure clean water at all times. Divide feed into 2–3 meals.`;
+  }
+}
+
+async function predictYield() {
+  const breed  = document.getElementById('predBreed').value;
+  const age    = document.getElementById('predAge').value;
+  const parity = document.getElementById('predParity').value;
+  const bcs    = document.getElementById('predBCS').value;
+
+  const respEl = document.getElementById('yieldResponse');
+  const bodyEl = document.getElementById('yieldBody');
+  respEl.classList.add('visible');
+  showLoading('yieldBody');
+
+  const langInstr = currentLang === 'hi' ? 'IMPORTANT: You must respond entirely in Hindi language.' : currentLang === 'pa' ? 'IMPORTANT: You must respond entirely in Punjabi (Gurmukhi script) language.' : 'Respond in English.';
+  const sys = `You are a milk yield prediction expert for Indian dairy breeds. Give realistic range estimates in litres per day and per lactation, with key factors. ${langInstr}`;
+  const prompt = `Predict milk yield:
+Breed: ${breed}
+Age: ${age} years
+Parity (lactation number): ${parity}
+BCS: ${bcs}/5
+
+Provide:
+1. Expected daily milk yield range (L/day)
+2. Expected lactation yield (305-day)
+3. Peak yield estimate
+4. Key factors affecting yield
+5. Tips to improve yield`;
+
+  try {
+    const result = await callClaude(sys, prompt);
+    bodyEl.innerHTML = result.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  } catch(e) {
+    const yields = { 'HF Cross': [10,15], 'Jersey': [8,12], 'Sahiwal': [6,9], 'Murrah Buffalo': [8,12] };
+    const range = yields[breed] || [7,11];
+    bodyEl.innerHTML = `📊 <strong>Expected Yield: ${range[0]}–${range[1]} L/day</strong><br>Lactation (305d): ~${range[0]*250}–${range[1]*250} L<br>BCS ${bcs}: ${bcs=='3'?'Optimal condition ✅':bcs=='2'?'Improve body condition ⚠️':'Reduce energy density ⚠️'}`;
+  }
+}
+
+async function getCarbonAdvice() {
+  const herd   = document.getElementById('herdSize').value;
+  const manure = document.getElementById('manureMethod').value;
+  const milk   = document.getElementById('carbonMilk').value;
+
+  const respEl = document.getElementById('carbonResponse');
+  const bodyEl = document.getElementById('carbonBody');
+  respEl.classList.add('visible');
+  showLoading('carbonBody');
+
+  const langInstr = currentLang === 'hi' ? 'IMPORTANT: You must respond entirely in Hindi language.' : currentLang === 'pa' ? 'IMPORTANT: You must respond entirely in Punjabi (Gurmukhi script) language.' : 'Respond in English.';
+  const sys = `You are a sustainable dairy and climate advisor for GAU SAARTHI. Provide practical, low-cost carbon reduction guidance for small Indian dairy farmers aligned with national climate goals. Focus on biogas, manure management, and feeding efficiency.`;
+  const prompt = `Low-carbon dairy assessment:
+Herd size: ${herd || 'not given'} animals
+Manure management: ${manure}
+Average milk yield: ${milk || 'not given'} L/animal/day
+
+Provide:
+1. 🌍 Current Carbon Footprint Assessment (g CO2e/L milk)
+2. 🌱 Top 3 Emission Reduction Actions
+3. ♻️ Manure → Biogas potential (m³/day, energy value)
+4. 💰 Financial benefits of each action
+5. 🏆 Low-Carbon Dairy Score (1–10)`;
+
+  try {
+    const result = await callClaude(sys, prompt);
+    bodyEl.innerHTML = result.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  } catch(e) {
+    const h = parseInt(herd) || 3;
+    bodyEl.innerHTML = `🌍 <strong>Carbon Assessment (${h} animals):</strong><br><br>
+${manure === 'biogas' ? '✅ Biogas – excellent! Already reducing methane.' : manure === 'compost' ? '♻️ Composting – good practice.' : '⚠️ Switch to biogas or composting for major impact.'}<br><br>
+🌱 Key Actions:<br>
+1. Install biogas plant – saves ₹8,000–12,000/year in fuel<br>
+2. Optimize feed – reduces enteric methane by 5–10%<br>
+3. Improve breeding – higher-yielding animals = less emission per litre<br><br>
+🏆 Carbon Score: ${manure === 'biogas' ? '8/10' : manure === 'compost' ? '6/10' : '4/10'}`;
+  }
+}
+
+// ─── HERD FUNCTIONS ───────────────────────────────────
+function showAddAnimalForm() {
+  const f = document.getElementById('addAnimalForm');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('newDate').value = today;
+}
+
+function addAnimal() {
+  const name    = document.getElementById('newName').value.trim();
+  const species = document.getElementById('newSpecies').value;
+  const breed   = document.getElementById('newBreed').value || 'Unknown';
+  if (!name) { showToast('⚠️ Please enter animal name'); return; }
+  const emoji = species === 'Cow' ? '🐄' : species === 'Buffalo' ? '🐃' : '🐮';
+  const html = `<div class="animal-card" onclick="selectAnimal(this,'${name}')">
+    <div class="animal-header"><div class="animal-name">${emoji} ${name}</div><span class="animal-badge badge-ok">✅ New</span></div>
+    <div class="animal-meta">${breed} | ${species} | Just added</div>
+  </div>`;
+  document.getElementById('animalList').insertAdjacentHTML('beforeend', html);
+  document.getElementById('addAnimalForm').style.display = 'none';
+  showToast('✅ ' + name + ' added to your herd!');
+  document.getElementById('newName').value = '';
+}
+
+function selectAnimal(el, name) {
+  document.querySelectorAll('.animal-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedAnimalName = name;
+  const detail = document.getElementById('animalDetail');
+  document.getElementById('detailTitle').textContent = '📋 ' + name;
+  document.getElementById('detailContent').innerHTML = `
+    <div class="alert alert-info">Selected: <strong>${name}</strong>. Click "AI Full Health Summary" for a comprehensive analysis.</div>`;
+  detail.style.display = 'block';
+  detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function getAnimalSummary() {
+  if (!selectedAnimalName) { showToast('⚠️ Select an animal first'); return; }
+  const respEl = document.getElementById('animalSummaryResponse');
+  const bodyEl = document.getElementById('animalSummaryBody');
+  respEl.classList.add('visible');
+  showLoading('animalSummaryBody');
+
+  const langInstr = currentLang === 'hi' ? 'IMPORTANT: You must respond entirely in Hindi language.' : currentLang === 'pa' ? 'IMPORTANT: You must respond entirely in Punjabi (Gurmukhi script) language.' : 'Respond in English.';
+  const sys = `You are GAU SAARTHI's AI veterinary assistant. Provide a comprehensive health, breeding, and nutrition summary for a dairy animal, with actionable recommendations. Be farmer-friendly and practical.`;
+  const prompt = `Generate a complete health summary and action plan for: ${selectedAnimalName}
+Include:
+1. 🏥 Overall Health Status
+2. 🥛 Milk Production Outlook
+3. 🌱 Breeding/Reproductive Status  
+4. 🌾 Nutrition Recommendations
+5. 💉 Vaccination Reminders (FMD, HS, BQ schedule)
+6. 📅 Next 30-Day Action Plan
+7. ⚠️ Watch Points`;
+
+  try {
+    const result = await callClaude(sys, prompt);
+    bodyEl.innerHTML = result.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  } catch(e) {
+    bodyEl.innerHTML = `📋 <strong>Summary for ${selectedAnimalName}:</strong><br><br>
+🏥 Health: Monitor daily for changes in appetite, milk, and behavior.<br>
+💉 Vaccinations: FMD (6-monthly), HS+BQ (annually before monsoon).<br>
+🌾 Nutrition: Ensure ICAR-recommended balanced diet.<br>
+📅 Next steps: Record milk daily, check for heat signs, deworm quarterly.`;
+  }
+}
+
+// ─── FALLBACK ADVICE ─────────────────────────────────
+function getFallbackAdvice(concern, animal, problem) {
+  const fallbacks = {
+    mastitis: `🔍 <strong>Possible Cause:</strong> Mastitis (udder infection) – most common in lactating cows.<br><br>✅ <strong>Immediate Actions:</strong><br>• Check all 4 udder quarters for hardness, heat, swelling<br>• Perform CMT (California Mastitis Test) if available<br>• Do not discard milk without vet advice<br>• Improve milking hygiene – clean hands, disinfect teat dips<br><br>🌿 <strong>Home Care:</strong> Warm compress on swollen quarter 2–3 times daily. Ensure clean dry bedding.<br><br>⚠️ <strong>Call Vet If:</strong> Temperature above 103°F, blood in milk, cow refusing feed, severe swelling.<br><br>📅 <strong>Reminder:</strong> Recheck in 24 hours. Log daily milk yield.`,
+    milk: `🔍 <strong>Possible Cause:</strong> Nutritional deficiency, stress, health issue, or late lactation stage.<br><br>✅ <strong>Immediate Actions:</strong><br>• Increase concentrate feed by 500g/day<br>• Add mineral mixture (50g/day)<br>• Ensure 35–50L clean water daily<br>• Check for mastitis signs<br><br>🌿 <strong>Home Care:</strong> Add jaggery (200g) and rock salt to feed. Improve green fodder access.<br><br>⚠️ <strong>Call Vet If:</strong> Drop exceeds 30%, or fever/lethargy present.<br><br>📅 <strong>Reminder:</strong> Monitor milk for 3 days. Record daily.`,
+    heat: `🔍 <strong>Possible Cause:</strong> Animal may be in or approaching estrus (heat).<br><br>✅ <strong>Immediate Actions:</strong><br>• Observe for 30 min morning and evening<br>• Note mounting, restlessness, clear discharge<br>• Contact AI center / vet 12–18 hours after heat onset<br><br>🌿 <strong>Breeding Tip:</strong> Best time for insemination is 12–18 hours after heat onset. Don't delay!<br><br>⚠️ <strong>Contact Vet If:</strong> Signs unclear, repeated heat with no conception, discharge abnormal.<br><br>📅 <strong>Reminder:</strong> Record date and signs in your log.`,
+    general: `🔍 <strong>Assessment:</strong> Based on your description, general monitoring is recommended.<br><br>✅ <strong>Immediate Actions:</strong><br>• Check temperature (normal: 101–102.5°F)<br>• Observe appetite and water intake<br>• Check for any visible wounds or swelling<br><br>🌿 <strong>Preventive Care:</strong> Ensure clean water, balanced feeding, and shelter from extreme weather.<br><br>⚠️ <strong>Call Vet If:</strong> Condition worsens, temperature above 104°F, animal stops eating for 24+ hours.<br><br>📅 <strong>Reminder:</strong> Observe animal twice daily for next 3 days.`
+  };
+  return fallbacks[concern] || fallbacks.general;
+}
+
+// ─── INIT ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Set today's date as default
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('obsDate').value = today;
+
+  // Set a sample last heat date for demo
+  const sampleHeat = new Date(Date.now() - 14*86400000).toISOString().split('T')[0];
+  document.getElementById('lastHeatDate').value = sampleHeat;
+  updateCycleDisplay();
+  setLang('en');
+});
+</script>
+</body>
+</html>
