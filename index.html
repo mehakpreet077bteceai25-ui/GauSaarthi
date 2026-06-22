@@ -1,0 +1,712 @@
+<body>
+
+<!-- ══════════════════════════
+     LOGIN SCREEN
+══════════════════════════ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">🐄</div>
+    <div class="login-title">GAU SAARTHI</div>
+    <div class="login-tagline" id="loginTagline">AI Dairy Assistant</div>
+
+    <div class="lang-tabs" id="loginLangTabs">
+      <button class="lang-tab active" onclick="setLang('en', this)">English</button>
+      <button class="lang-tab" onclick="setLang('hi', this)">हिन्दी</button>
+      <button class="lang-tab" onclick="setLang('pa', this)">ਪੰਜਾਬੀ</button>
+    </div>
+
+    <div class="login-form-group">
+      <label id="lblMobile">Mobile Number</label>
+      <input type="tel" id="loginMobile" maxlength="10" placeholder="Mobile Number/मोबाइल नंबर/ਮੋਬਾਈਲ ਨੰਬਰ">
+    </div>
+
+    <div class="login-form-group">
+      <label id="lblPassword">Password</label>
+      <input type="password" id="loginPassword" placeholder="Password/पासवर्ड/ਪਾਸਵਰਡ">
+    </div>
+
+    <div class="login-error" id="loginError"></div>
+
+    <button class="btn-login-primary" id="loginBtn" onclick="doLogin()">Login</button>
+    <button class="btn-signup" onclick="showSignup()">Sign Up</button>
+
+    <div class="login-footer" id="loginFooter">Demo: any number + any password</div>
+  </div>
+</div>
+
+<div id="signupForm" style="display:none; margin-top:20px;">
+    <div id="signupForm" style="display:none;"></div>
+
+  <div class="login-form-group">
+    <label>Full Name</label>
+    <input type="text" id="signupName" placeholder="Enter your name">
+  </div>
+
+  <div class="login-form-group">
+    <label>Mobile Number</label>
+    <input type="tel" id="signupMobile" placeholder="9876543210">
+  </div>
+
+  <div class="login-form-group">
+    <label>Password</label>
+    <input type="password" id="signupPassword" placeholder="Create password">
+  </div>
+
+  <button class="btn-login-primary" onclick="registerUser()">Create Account</button>
+</div>
+
+<!-- ══════════════════════════
+     MAIN APP SCREEN
+══════════════════════════ -->
+<div id="appScreen" class="screen">
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🐄</div>
+      <div class="logo-text">
+        <h1 id="h-title">GAU SAARTHI</h1>
+        <p id="h-sub">Voice-Based AI Dairy Assistant</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <nav>
+        <button onclick="switchTab('home')"    id="nav-home"    class="active" data-i18n="nav-home">🏠 Home</button>
+        <button onclick="switchTab('health')"  id="nav-health" data-i18n="nav-health">🩺 Health</button>
+        <button onclick="switchTab('breed')"   id="nav-breed" data-i18n="nav-breed">🌱 Breeding</button>
+        <button onclick="switchTab('feed')"    id="nav-feed" data-i18n="nav-feed">🌾 Feed</button>
+        <button onclick="switchTab('herd')"    id="nav-herd" data-i18n="nav-herd">📋 My Herd</button>
+      </nav>
+      <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
+        <option value="en">🇮🇳 English</option>
+        <option value="hi">हिंदी</option>
+        <option value="pa">ਪੰਜਾਬੀ</option>
+      </select>
+      <button class="btn-logout" id="logoutBtn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+</header>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MAIN -->
+<div class="app-container">
+
+  <!-- ═══════════ HOME TAB ═══════════ -->
+  <div class="panel active" id="panel-home">
+
+    <div class="hero">
+      <h2 id="hero-title">🐄 Welcome to GAU SAARTHI</h2>
+      <p id="hero-desc">Your AI-powered dairy companion. Speak naturally, share a photo, and get expert guidance on animal health, breeding, and feeding – right now, in your language.</p>
+      <div class="hero-chips">
+        <span class="hero-chip">🎤 Voice-First</span>
+        <span class="hero-chip">📷 Image Analysis</span>
+        <span class="hero-chip">🌐 Hindi / Punjabi / English</span>
+        <span class="hero-chip">📴 Works Offline</span>
+        <span class="hero-chip">💊 No Wearables Needed</span>
+      </div>
+    </div>
+
+    <!-- QUICK ADVISORY CARD -->
+    <div class="card">
+      <div class="card-title">🎤 <span id="qa-title">Quick AI Advisory</span></div>
+
+      <div class="form-group">
+        <label id="qa-label">Describe your animal's problem in your own words</label>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <textarea id="problemText" placeholder="e.g. My cow is eating less and milk production has dropped..."></textarea>
+          <button class="btn btn-voice" id="voiceBtn" onclick="toggleVoice()" title="Record Voice">🎤</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label id="qa-animal">Animal Type</label>
+          <select id="animalType">
+            <option value="cow">🐄 Cow</option>
+            <option value="buffalo">🐃 Buffalo</option>
+            <option value="calf">🐮 Calf</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="qa-concern">Main Concern</label>
+          <select id="concernType">
+            <option value="general">General Health</option>
+            <option value="milk">Milk Production Drop</option>
+            <option value="mastitis">Udder / Mastitis</option>
+            <option value="heat">Heat / Breeding</option>
+            <option value="feeding">Feeding / Nutrition</option>
+            <option value="injury">Injury / Lameness</option>
+            <option value="respiratory">Respiratory / Fever</option>
+            <option value="digestion">Digestion / Bloating</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>📷 Upload Animal Photo (Optional – for visual analysis)</label>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)" />
+          <div class="upload-icon">📸</div>
+          <div class="upload-text">Tap to take or upload a photo of your animal<br><small>Helps AI assess body condition, udder health, and more</small></div>
+        </div>
+        <img id="imagePreview" alt="Animal photo preview" />
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="getAIAdvice()">
+          🤖 <span id="qa-btn">Get AI Advisory</span>
+        </button>
+        <button class="btn btn-secondary" onclick="clearAdvice()" data-i18n="btn-clear">🗑️ Clear</button>
+      </div>
+
+      <div class="ai-response" id="aiResponse">
+        <div class="ai-response-header">🌿 <span id="ai-resp-title">AI Advisory</span> – GAU SAARTHI</div>
+        <div class="ai-response-body" id="aiResponseBody"></div>
+        <button class="speak-btn" onclick="speakResponse()" data-i18n="btn-listen">🔊 Listen to Advisory</button>
+      </div>
+    </div>
+
+    <!-- FEATURE GRID -->
+    <div class="section-title">🌟 <span id="fg-title">Core Features</span></div>
+    <div class="grid-3" style="margin-bottom:24px">
+      <div class="feature-chip" onclick="switchTab('health')">
+        <div class="feature-chip-icon">🩺</div>
+        <div class="feature-chip-label" id="fc1">Animal Health Monitoring</div>
+      </div>
+      <div class="feature-chip" onclick="switchTab('breed')">
+        <div class="feature-chip-icon">🌱</div>
+        <div class="feature-chip-label" id="fc2">Fertility & Breeding Planner</div>
+      </div>
+      <div class="feature-chip" onclick="switchTab('feed')">
+        <div class="feature-chip-icon">🌾</div>
+        <div class="feature-chip-label" id="fc3">Feed-to-Yield Guidance</div>
+      </div>
+      <div class="feature-chip" onclick="switchTab('herd')">
+        <div class="feature-chip-icon">📋</div>
+        <div class="feature-chip-label" id="fc4">My Herd Records</div>
+      </div>
+      <div class="feature-chip" onclick="switchTab('health');setTimeout(()=>document.getElementById('mastitis-section').scrollIntoView({behavior:'smooth'}),200)">
+        <div class="feature-chip-icon">🔬</div>
+        <div class="feature-chip-label" id="fc5">Mastitis Early Detection</div>
+      </div>
+      <div class="feature-chip" onclick="switchTab('feed');setTimeout(()=>document.getElementById('carbon-section').scrollIntoView({behavior:'smooth'}),200)">
+        <div class="feature-chip-icon">🌍</div>
+        <div class="feature-chip-label" id="fc6">Low-Carbon Dairy Advisor</div>
+      </div>
+    </div>
+
+    <!-- ALERTS PANEL -->
+    <div class="section-title">🔔 <span id="alerts-title">Today's Alerts</span></div>
+    <div id="alertsPanel">
+      <div class="alert alert-warning">⚠️ <span><strong>Rani (Cow #2)</strong> – Heat cycle expected in 3 days. Prepare for insemination.</span></div>
+      <div class="alert alert-danger">🚨 <span><strong>Kali (Buffalo #1)</strong> – Milk yield dropped 20% this week. Check udder health.</span></div>
+      <div class="alert alert-success">✅ <span><strong>Gauri (Cow #1)</strong> – Health status normal. Next vaccination due in 12 days.</span></div>
+    </div>
+
+  </div><!-- /panel-home -->
+
+
+  <!-- ═══════════ HEALTH TAB ═══════════ -->
+  <div class="panel" id="panel-health">
+
+    <div class="section-title">🩺 <span id="ht-title">Animal Health & Body Condition Monitoring</span></div>
+
+    <!-- HEALTH CHECK FORM -->
+    <div class="card">
+      <div class="card-title" id="card-log-health">📝 Log Health Observation</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-select-animal">Select Animal</label>
+          <select id="healthAnimal">
+            <option>Gauri – Cow #1</option>
+            <option>Rani – Cow #2</option>
+            <option>Kali – Buffalo #1</option>
+            <option>+ Add New Animal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-obs-date">Date of Observation</label>
+          <input type="date" id="obsDate" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-milk-yield">Milk Yield Today (Litres)</label>
+          <input type="number" id="milkYield" placeholder="e.g. 8.5" min="0" step="0.5" />
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-body-temp">Body Temperature (°F)</label>
+          <input type="number" id="bodyTemp" placeholder="Normal: 101–102.5" min="95" max="110" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-bcs">Body Condition Score (1–5)</label>
+          <select id="bcs">
+            <option value="1">1 – Very Thin</option>
+            <option value="2">2 – Thin</option>
+            <option value="3" selected>3 – Ideal</option>
+            <option value="4">4 – Fat</option>
+            <option value="5">5 – Very Fat</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-appetite">Appetite</label>
+          <select id="appetite">
+            <option value="normal">Normal</option>
+            <option value="reduced">Reduced</option>
+            <option value="none">Not Eating</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label data-i18n-label="lbl-symptoms">Visible Symptoms (select all that apply)</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px" id="symptomsGrid">
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="udder_swelling"> Udder Swelling</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="limping"> Limping / Lameness</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="diarrhea"> Loose Stool / Diarrhea</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="nasal"> Nasal Discharge</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="restless"> Restlessness</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="bloating"> Bloating</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="lethargy"> Lethargy / Dull Eyes</label>
+          <label style="display:flex;align-items:center;gap:5px;font-weight:400;cursor:pointer"><input type="checkbox" value="abnormal_milk"> Abnormal Milk (watery/bloody)</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label data-i18n-label="lbl-add-notes">Additional Notes</label>
+        <textarea id="healthNotes" placeholder="Any other observations..."></textarea>
+      </div>
+
+      <!-- PHOTO UPLOAD FOR HEALTH -->
+      <div class="form-group">
+        <label data-i18n-label="lbl-upload-health">📷 Upload Photo of Affected Area</label>
+        <div class="upload-zone">
+          <input type="file" id="healthImageInput" accept="image/*" onchange="previewHealthImage(event)" />
+          <div class="upload-icon">🔬</div>
+          <div class="upload-text">Photo helps AI assess udder condition, body score, and visible signs</div>
+        </div>
+        <img id="healthImagePreview" style="max-width:100%;max-height:180px;margin-top:10px;display:none;border-radius:8px" />
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="analyzeHealth()" data-i18n="btn-ai-health">🤖 AI Health Analysis</button>
+        <button class="btn btn-secondary" onclick="logHealthEntry()" data-i18n="btn-save-log">💾 Save to Log</button>
+      </div>
+
+      <div class="ai-response" id="healthAIResponse">
+        <div class="ai-response-header">🩺 Health Analysis Result</div>
+        <div class="ai-response-body" id="healthAIResponseBody"></div>
+        <button class="speak-btn" onclick="speakText(document.getElementById('healthAIResponseBody').innerText)">🔊 Listen</button>
+      </div>
+    </div>
+
+    <!-- MASTITIS SECTION -->
+    <div id="mastitis-section" class="card">
+      <div class="card-title" id="card-mastitis">🔬 Mastitis Risk Checker</div>
+      <p style="font-size:0.85rem;color:var(--text-sub);margin-bottom:14px">Subclinical mastitis costs ₹1,390 per lactation on average. Early detection is critical.</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-select-animal">Animal</label>
+          <select id="mastitisAnimal">
+            <option>Gauri – Cow #1</option>
+            <option>Rani – Cow #2</option>
+            <option>Kali – Buffalo #1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-udder-condition">Udder Condition</label>
+          <select id="udderCondition">
+            <option value="normal">Normal – Soft, Even</option>
+            <option value="slightly_hard">Slightly Hard / One Quarter</option>
+            <option value="very_hard">Very Hard / Hot / Painful</option>
+            <option value="asymmetric">Asymmetric Quarters</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-milk-appearance">Milk Appearance</label>
+          <select id="milkAppearance">
+            <option value="normal">Normal White / Creamy</option>
+            <option value="watery">Watery / Thin</option>
+            <option value="flakes">Flakes / Clots</option>
+            <option value="bloody">Bloody / Pink</option>
+            <option value="yellowish">Yellowish / Green</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-days-calving">Days Since Last Calving</label>
+          <input type="number" id="daysCalving" placeholder="e.g. 45" min="0" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="checkMastitis()" data-i18n="btn-check-mastitis">🔍 Check Mastitis Risk</button>
+      <div class="ai-response" id="mastitisResponse">
+        <div class="ai-response-header">🔬 Mastitis Risk Assessment</div>
+        <div class="ai-response-body" id="mastitisBody"></div>
+        <button class="speak-btn" onclick="speakText(document.getElementById('mastitisBody').innerText)">🔊 Listen</button>
+      </div>
+    </div>
+
+    <!-- HEALTH LOG -->
+    <div class="card">
+      <div class="card-title" id="card-health-log">📅 Health Log</div>
+      <div id="healthLog">
+        <div class="log-entry">
+          <div class="log-date">12 Jun 2026 – Gauri (Cow #1)</div>
+          Milk: 9L | Temp: 101.5°F | BCS: 3 | Appetite: Normal | Status: ✅ Healthy
+        </div>
+        <div class="log-entry">
+          <div class="log-date">10 Jun 2026 – Kali (Buffalo #1)</div>
+          Milk: 6L (↓ from 8L) | Temp: 103.2°F | Udder: Slightly Hard | ⚠️ Monitoring
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel-health -->
+
+
+  <!-- ═══════════ BREEDING TAB ═══════════ -->
+  <div class="panel" id="panel-breed">
+
+    <div class="section-title" id="bt-title">🌱 Fertility & Insemination Planner</div>
+    <p style="font-size:0.85rem;color:var(--text-sub);margin-bottom:20px">Missing a heat (estrus) cycle costs farmers ~21 days of reproductive opportunity. We track it for you.</p>
+
+    <!-- CYCLE TRACKER -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" id="card-cycle">📅 Estrus Cycle Tracker</div>
+        <div class="form-group">
+          <label>Select Animal</label>
+          <select id="breedAnimal" onchange="updateCycleDisplay()">
+            <option value="gauri">Gauri – Cow #1</option>
+            <option value="rani">Rani – Cow #2</option>
+            <option value="kali">Kali – Buffalo #1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-last-heat">Last Heat Date</label>
+          <input type="date" id="lastHeatDate" onchange="updateCycleDisplay()" />
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-last-calving">Last Calving Date</label>
+          <input type="date" id="lastCalvingDate" />
+        </div>
+        <button class="btn btn-primary" onclick="getBreedingAdvice()" data-i18n="btn-ai-breeding">🤖 AI Breeding Advisory</button>
+        <div class="ai-response" id="breedingResponse">
+          <div class="ai-response-header">🌱 Breeding Advisory</div>
+          <div class="ai-response-body" id="breedingBody"></div>
+          <button class="speak-btn" onclick="speakText(document.getElementById('breedingBody').innerText)">🔊 Listen</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" id="card-cycle-status">⏱️ Cycle Status</div>
+        <div id="cycleDisplay">
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px">
+              <span>Gauri – Cow #1</span><span id="cycleDaysText">Day 14 / 21</span>
+            </div>
+            <div class="cycle-bar"><div class="cycle-fill yellow" id="cycleFill" style="width:67%"></div></div>
+            <div class="alert alert-warning" style="margin-top:8px;padding:8px 12px;font-size:0.8rem">
+              🔥 Heat expected in ~7 days. Plan insemination.
+            </div>
+          </div>
+          <div style="font-size:0.82rem;color:var(--text-sub)">
+            <div class="risk-row"><span class="risk-label">Conception Probability</span><span class="risk-pill badge-ok">72%</span></div>
+            <div class="risk-row"><span class="risk-label">Days Open</span><span class="risk-pill badge-watch">87 days</span></div>
+            <div class="risk-row"><span class="risk-label">Recommended Action</span><span class="risk-pill badge-ok">Monitor</span></div>
+          </div>
+        </div>
+
+        <hr style="margin:16px 0;border-color:var(--green-pale)">
+
+        <div class="card-title" style="font-size:0.9rem" id="card-heat-checklist">📋 Heat Signs Checklist</div>
+        <div id="heatSigns" style="font-size:0.83rem;color:var(--text-sub)">
+          <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;font-weight:400"><input type="checkbox"> Mounting other animals or being mounted</label>
+          <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;font-weight:400"><input type="checkbox"> Clear mucus discharge from vulva</label>
+          <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;font-weight:400"><input type="checkbox"> Restlessness / increased activity</label>
+          <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;font-weight:400"><input type="checkbox"> Swollen or reddened vulva</label>
+          <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;font-weight:400"><input type="checkbox"> Reduced feed intake</label>
+          <label style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;font-weight:400"><input type="checkbox"> Milk drop (temporary)</label>
+        </div>
+        <button class="btn btn-secondary" style="margin-top:10px" onclick="checkHeatSigns()" data-i18n="btn-check-heat">✅ Check Heat Signs</button>
+      </div>
+    </div>
+
+    <!-- INSEMINATION LOG -->
+    <div class="card">
+      <div class="card-title" id="card-insem">💉 Insemination Record</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-insem-animal">Animal</label>
+          <select id="aiAnimal">
+            <option>Gauri – Cow #1</option>
+            <option>Rani – Cow #2</option>
+            <option>Kali – Buffalo #1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-insem-date">Insemination Date</label>
+          <input type="date" id="aiDate" />
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-bull-type">Bull / Semen Type</label>
+          <input type="text" id="aiType" placeholder="e.g. HF Cross, Jersey..." />
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-done-by">Done By</label>
+          <select id="aiBy">
+            <option>Government AI Center</option>
+            <option>Private Vet</option>
+            <option>Co-operative</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="logInsemination()" data-i18n="btn-save-insem">💾 Save Record</button>
+      <div id="aiLog" style="margin-top:14px">
+        <div class="log-entry"><div class="log-date">15 May 2026 – Gauri (Cow #1)</div>HF Cross | Government AI Center | Pregnancy check due: 14 Jun 2026</div>
+      </div>
+    </div>
+
+  </div><!-- /panel-breed -->
+
+
+  <!-- ═══════════ FEED TAB ═══════════ -->
+  <div class="panel" id="panel-feed">
+
+    <div class="section-title" id="ft-title">🌾 Feed-to-Yield Guidance & Nutrition Advisor</div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" id="card-feed-rec">🌿 Get Feed Recommendation (ICAR Norms)</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label data-i18n-label="lbl-feed-animal">Animal Type & Breed</label>
+            <select id="feedAnimalType">
+              <option value="hf_cross">HF Cross Cow</option>
+              <option value="jersey">Jersey Cow</option>
+              <option value="sahiwal">Sahiwal (Indigenous)</option>
+              <option value="murrah">Murrah Buffalo</option>
+              <option value="jaffarabadi">Jaffarabadi Buffalo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-i18n-label="lbl-body-weight">Body Weight (kg)</label>
+            <input type="number" id="bodyWeight" placeholder="e.g. 400" min="100" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label data-i18n-label="lbl-feed-milk">Current Daily Milk Yield (L)</label>
+            <input type="number" id="feedMilkYield" placeholder="e.g. 10" min="0" step="0.5" />
+          </div>
+          <div class="form-group">
+            <label data-i18n-label="lbl-lact-stage">Lactation Stage</label>
+            <select id="lactStage">
+              <option value="early">Early (0–3 months)</option>
+              <option value="mid">Mid (3–6 months)</option>
+              <option value="late">Late (6+ months)</option>
+              <option value="dry">Dry Period</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-feed-resources">Available Local Feed Resources</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">
+            <label style="font-weight:400;cursor:pointer;font-size:0.83rem"><input type="checkbox" id="f_green" checked> Green Fodder</label>
+            <label style="font-weight:400;cursor:pointer;font-size:0.83rem"><input type="checkbox" id="f_dry" checked> Dry Straw</label>
+            <label style="font-weight:400;cursor:pointer;font-size:0.83rem"><input type="checkbox" id="f_cotton"> Cottonseed Cake</label>
+            <label style="font-weight:400;cursor:pointer;font-size:0.83rem"><input type="checkbox" id="f_maize"> Maize Silage</label>
+            <label style="font-weight:400;cursor:pointer;font-size:0.83rem"><input type="checkbox" id="f_grain" checked> Grain Mix / Concentrate</label>
+            <label style="font-weight:400;cursor:pointer;font-size:0.83rem"><input type="checkbox" id="f_mineral"> Mineral Mixture</label>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="getFeedAdvice()" data-i18n="btn-ai-feed">🤖 AI Feed Recommendation</button>
+        <div class="ai-response" id="feedAIResponse">
+          <div class="ai-response-header">🌾 Feed Advisory (ICAR-Aligned)</div>
+          <div class="ai-response-body" id="feedAIBody"></div>
+          <button class="speak-btn" onclick="speakText(document.getElementById('feedAIBody').innerText)">🔊 Listen</button>
+        </div>
+      </div>
+
+      <!-- MILK YIELD PREDICTOR -->
+      <div class="card">
+        <div class="card-title" id="card-yield-pred">📈 Milk Yield Predictor</div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-pred-breed">Breed</label>
+          <select id="predBreed">
+            <option>HF Cross</option>
+            <option>Jersey</option>
+            <option>Sahiwal</option>
+            <option>Murrah Buffalo</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label data-i18n-label="lbl-pred-age">Age (years)</label>
+            <input type="number" id="predAge" placeholder="e.g. 4" min="1" max="15" />
+          </div>
+          <div class="form-group">
+            <label data-i18n-label="lbl-pred-parity">Parity (Lactation #)</label>
+            <input type="number" id="predParity" placeholder="e.g. 2" min="1" max="10" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-pred-bcs">BCS</label>
+          <select id="predBCS">
+            <option value="2">2 – Thin</option>
+            <option value="3" selected>3 – Ideal</option>
+            <option value="4">4 – Fat</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="predictYield()" data-i18n="btn-predict-yield">📊 Predict Milk Yield</button>
+        <div class="ai-response" id="yieldResponse">
+          <div class="ai-response-header">📊 Yield Prediction</div>
+          <div class="ai-response-body" id="yieldBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOW CARBON ADVISOR -->
+    <div id="carbon-section" class="card">
+      <div class="card-title" id="card-carbon">🌍 Low-Carbon Dairy Advisor</div>
+      <p style="font-size:0.85rem;color:var(--text-sub);margin-bottom:14px">Reduce methane emissions while improving feed efficiency and farm income.</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n-label="lbl-herd-size">Herd Size</label>
+          <input type="number" id="herdSize" placeholder="e.g. 5" min="1" />
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-manure">Manure Management</label>
+          <select id="manureMethod">
+            <option value="open">Open dumping</option>
+            <option value="compost">Composting</option>
+            <option value="biogas">Biogas Plant</option>
+            <option value="field">Direct field use</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-carbon-milk">Average Daily Milk Yield / Animal (L)</label>
+          <input type="number" id="carbonMilk" placeholder="e.g. 8" min="1" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="getCarbonAdvice()" data-i18n="btn-carbon">🌱 Get Low-Carbon Advisory</button>
+      <div class="ai-response" id="carbonResponse">
+        <div class="ai-response-header">🌍 Carbon & Sustainability Advisory</div>
+        <div class="ai-response-body" id="carbonBody"></div>
+        <button class="speak-btn" onclick="speakText(document.getElementById('carbonBody').innerText)">🔊 Listen</button>
+      </div>
+    </div>
+
+  </div><!-- /panel-feed -->
+
+
+  <!-- ═══════════ HERD TAB ═══════════ -->
+  <div class="panel" id="panel-herd">
+
+    <div class="section-title" style="justify-content:space-between">
+      <span id="hrd-title">📋 My Herd Records</span>
+      <button class="btn btn-primary" style="font-size:0.78rem;padding:7px 14px" onclick="showAddAnimalForm()">➕ Add Animal</button>
+    </div>
+
+    <!-- ADD ANIMAL FORM -->
+    <div class="card" id="addAnimalForm" style="display:none">
+      <div class="card-title" id="card-add-animal">➕ Register New Animal</div>
+      <div class="form-row">
+        <div class="form-group"><label data-i18n-label="lbl-new-name">Animal Name / Tag ID</label><input type="text" id="newName" placeholder="e.g. Lakshmi or #005" /></div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-species">Species</label>
+          <select id="newSpecies">
+            <option>Cow</option><option>Buffalo</option><option>Calf</option>
+          </select>
+        </div>
+        <div class="form-group"><label data-i18n-label="lbl-breed-input">Breed</label><input type="text" id="newBreed" placeholder="e.g. HF Cross" /></div>
+        <div class="form-group"><label data-i18n-label="lbl-dob">Date of Birth</label><input type="date" id="newDOB" /></div>
+        <div class="form-group"><label data-i18n-label="lbl-purchase-date">Purchase / Calving Date</label><input type="date" id="newDate" /></div>
+        <div class="form-group">
+          <label data-i18n-label="lbl-new-bcs">Current BCS</label>
+          <select id="newBCS">
+            <option>1</option><option>2</option><option value="3" selected>3</option><option>4</option><option>5</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="addAnimal()" data-i18n="btn-save-animal">💾 Save Animal</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('addAnimalForm').style.display='none'" data-i18n="btn-cancel">Cancel</button>
+      </div>
+    </div>
+
+    <!-- ANIMAL CARDS -->
+    <div id="animalList">
+      <div class="animal-card" onclick="selectAnimal(this,'Gauri – Cow #1')">
+        <div class="animal-header">
+          <div class="animal-name">🐄 Gauri – Cow #1</div>
+          <span class="animal-badge badge-ok">✅ Healthy</span>
+        </div>
+        <div class="animal-meta">HF Cross | Age: 4 yrs | BCS: 3 | Milk: ~9L/day | Last Calving: 15 Mar 2026</div>
+        <div style="margin-top:8px;font-size:0.8rem;color:var(--text-sub)">Next vaccination: 24 Jun 2026 &nbsp;|&nbsp; Cycle Day: 14/21</div>
+      </div>
+      <div class="animal-card" onclick="selectAnimal(this,'Rani – Cow #2')">
+        <div class="animal-header">
+          <div class="animal-name">🐄 Rani – Cow #2</div>
+          <span class="animal-badge badge-watch">🔔 Heat Soon</span>
+        </div>
+        <div class="animal-meta">Jersey Cross | Age: 5 yrs | BCS: 3 | Milk: ~7L/day | Last Calving: 10 Jan 2026</div>
+        <div style="margin-top:8px;font-size:0.8rem;color:var(--text-sub)">Heat expected: 15 Jun 2026 &nbsp;|&nbsp; Insemination recommended</div>
+      </div>
+      <div class="animal-card" onclick="selectAnimal(this,'Kali – Buffalo #1')">
+        <div class="animal-header">
+          <div class="animal-name">🐃 Kali – Buffalo #1</div>
+          <span class="animal-badge badge-alert">⚠️ Check Needed</span>
+        </div>
+        <div class="animal-meta">Murrah | Age: 6 yrs | BCS: 2.5 | Milk: ~6L/day (↓) | Last Calving: 20 Nov 2025</div>
+        <div style="margin-top:8px;font-size:0.8rem;color:var(--text-sub)">Milk drop detected &nbsp;|&nbsp; Udder check recommended</div>
+      </div>
+    </div>
+
+    <!-- SELECTED ANIMAL DETAIL -->
+    <div class="card" id="animalDetail" style="display:none;margin-top:20px">
+      <div class="card-title" id="detailTitle">Animal Detail</div>
+      <div id="detailContent"></div>
+      <button class="btn btn-primary" style="margin-top:12px" onclick="getAnimalSummary()" data-i18n="btn-ai-summary">🤖 AI Full Health Summary</button>
+      <div class="ai-response" id="animalSummaryResponse">
+        <div class="ai-response-header">📋 AI Animal Summary</div>
+        <div class="ai-response-body" id="animalSummaryBody"></div>
+        <button class="speak-btn" onclick="speakText(document.getElementById('animalSummaryBody').innerText)">🔊 Listen</button>
+      </div>
+    </div>
+
+    <!-- HERD STATS -->
+    <div class="section-title" style="margin-top:24px" id="card-herd-overview">📊 Herd Overview</div>
+    <div class="grid-3">
+      <div class="stat-card">
+        <div class="stat-icon green">🐄</div>
+        <div><div class="stat-value">3</div><div class="stat-label">Total Animals</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue">🥛</div>
+        <div><div class="stat-value">22L</div><div class="stat-label">Daily Milk Yield</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon yellow">🔔</div>
+        <div><div class="stat-value">2</div><div class="stat-label">Alerts Today</div></div>
+      </div>
+    </div>
+
+  </div><!-- /panel-herd -->
+
+</div><!-- /app-container -->
+
+<footer>
+  <p id="footer-line1">🐄 GAU SAARTHI – Voice-Based AI Dairy Decision Support &nbsp;|&nbsp; Powered by Claude AI &nbsp;|&nbsp; ICAR & NDDB Aligned &nbsp;|&nbsp; Team M-Square</p>
+  <p style="margin-top:4px" id="footer-line2">Mehakpreet Kaur &nbsp;&amp;&nbsp; Midushi Maheshwari &nbsp;|&nbsp; This is an advisory tool only – always consult a veterinarian for medical decisions.</p>
+</footer>
+
+</div>
